@@ -1,0 +1,41 @@
+regra sintática: <function> -> FUNCTION ID AP <arg_list> FP DP TYPE <stmts> ENDFUNCTION
+regra semântica: <function>.rok <- <stmts>.rok
+regra semântica: <function>.expected_type <- TYPE.string 
+regra semântica: <function>.actual_type <- <stmts>.type
+predicado: <function>.rok == true
+predicado: <function>.actual_type == <function>.expected_type
+
+regra sintática: <stmts> -> <stmt>      
+regra semântica: <stmts>.rok <- <stmt>.rok     
+regra semântica: <stmts>.type <- <stmt>.type      
+              
+regra sintática: <stmts>[1] -> <stmts>[2] PV <stmt>
+regra semântica: <stmts>[1].rok <- <stmts>[2].rok OR <stmt>.rok 
+regra semântica: <stmts>[1].type <- if (<stmts>[2].type == <stmt>.type) then <stmt>.type
+                                    else 
+                                      if (<stmts>[2].type == type_error OR
+                                          <stmt>.type == type_error OR
+                                          (<stmts>[2].type != VOID AND <stmt>.type != VOID)) then type_error
+                                      else 
+                                        if (<stmts>[2].type == VOID) then <stmt>.type endif
+                                        if (<stmt>.type == VOID) then <stmts>[2].type endif
+                                      endif
+                                    endif
+predicado: <stmts>[1].type != type_error
+
+regra sintática: <stmt> -> <if>
+regra semântica: <stmt>.rok <- <if>.rok 
+regra semântica: <stmt>.type <- <if>.type
+
+regra sintática: <stmt> -> <return>
+regra semântica: <stmt>.rok <- <return>.rok 
+regra semântica: <stmt>.type <- <return>.type
+
+regra sintática  <if> -> IF AP <exp> FP THEN <stmts>[1] ELSE <stmts>[2] ENDIF
+regra semântica  <if>.rok <- <stmts>[1].rock AND <stmts>[2].rok 
+regra semântica: <if>.type <- VOID
+
+regra sintática: <return> -> RETURN <exp>
+regra semântica: <return>.rok <- true
+regra semântica: <return>.type <- <exp>.type
+
