@@ -24,18 +24,44 @@ extern char * yytext;
 
 %% /* Inicio da segunda seção, onde colocamos as regras BNF */
 
-prog : stmlist {} 
+program : declarations subprograms {}
+		;
+
+subprograms : subprogram			{}
+			| subprogram subprograms  {}
+			;
+
+subprogram  : FUNCTION ID AP arguments FP DP type AC stmlist FC BLOCK_END
+		    | PROCEDURE ID AP arguments FP AC  stmlist FC BLOCK_END
+			;
+
+type : NUMBER | STRING | BOOLEAN
 	 ;
 
-stm : ID ASSIGN ID                          {}
-    | WHILE ID DO stm						{}
-	| BLOCK_BEGIN stmlist BLOCK_END			{}
-	| IF ID THEN stm ELSE stm 				{}
-	;
-	
+arguments : argument 						{}
+		  | arguments COL argument 			{}
+		  ;
+
+argument : type ID  						{}
+		 ;
+
+
 stmlist : stm								{}
 		| stmlist SEMI stm   				{}
 	    ;
+
+stm : ID ASSIGN ID SEMI                     {}
+    | declarations 							{}
+	| WHILE ID DO stm						{}
+	| BLOCK_BEGIN stmlist BLOCK_END			{}
+	| IF ID THEN stm ELSE stm 				{}
+	;
+
+
+declarations:  declaration      			{}
+			|  declarations COL declaration {}
+
+declaration: type
 
 %% /* Fim da segunda seção */
 

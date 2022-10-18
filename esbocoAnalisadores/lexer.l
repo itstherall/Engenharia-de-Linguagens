@@ -15,10 +15,14 @@
 "end"      				    {return(BLOCK_END);}
 "do"      				    {return(DO);}
 "if"      				    {return(IF);}
+"endif"               {return(BLOCK_ENDIF);}
 "then"      			    {return(THEN);}
 "else"      			    {return(ELSE);}
+":"                   {return(DP)}
 ";"      				      {return(SEMI);}
-":="					        {return ASSIGN;}
+","                   {return(COL);}
+":="					        {return(ASSIGN);}
+
 [a-zA-Z][a-zA-Z0-9]*	{yylval.sValue = strdup(yytext); 
                        return ID;}
 .                      {yyerror("invalid character");}
