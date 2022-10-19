@@ -35,7 +35,7 @@ subprogram  : FUNCTION ID AP arguments FP DP type AC stmlist FC BLOCK_END
 		    | PROCEDURE ID AP arguments FP AC  stmlist FC BLOCK_END
 			;
 
-type : NUMBER | STRING | BOOLEAN
+type : NUMBER | STRING | BOOL | MAP
 	 ;
 
 arguments : argument 						{}
@@ -50,18 +50,25 @@ stmlist : stm								{}
 		| stmlist SEMI stm   				{}
 	    ;
 
-stm : ID ASSIGN ID SEMI                     {}
-    | declarations 							{}
+stm : declaration 							{}
 	| WHILE ID DO stm						{}
 	| BLOCK_BEGIN stmlist BLOCK_END			{}
 	| IF ID THEN stm ELSE stm 				{}
 	;
 
+declaration : type ids
+			;
 
-declarations:  declaration      			{}
-			|  declarations COL declaration {}
+ids :  id  SEMI    			{}
+	|  id COL ids	 		{}
+	;
 
-declaration: type
+id  : ID init_opt 	{}
+	;
+
+init_opt : 
+		 | ASSIGN ID
+		 ;
 
 %% /* Fim da segunda seção */
 
