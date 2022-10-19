@@ -51,9 +51,9 @@ stmlist : stm								{}
 	    ;
 
 stm : declaration 							{}
-	| WHILE ID DO stm						{}
-	| BLOCK_BEGIN stmlist BLOCK_END			{}
-	| IF ID THEN stm ELSE stm 				{}
+	| while									{}
+	| if 									{}
+	| block 								{}
 	;
 
 declaration : type ids
@@ -70,6 +70,22 @@ init_opt :
 		 | ASSIGN ID
 		 ;
 
+
+while : WHILE condition block WHILE_BLOCK_END 	{}
+	  ;
+
+
+if : IF condition block IF_BLOCK_END			{}
+   | IF condition block ELSE IF condition block IF_BLOCK_END			{}
+   | IF condition block ELSE block IF_BLOCK_END {}
+   ;
+
+block : AC stmlist FC 			{}
+	  ;
+
+condition : AP bool_exp FP		{}
+		  | AP rel_exp FP		{}
+		  ;
 %% /* Fim da segunda seção */
 
 int main (void) {
