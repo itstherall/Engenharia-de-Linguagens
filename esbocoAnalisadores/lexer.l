@@ -21,7 +21,7 @@
 ":"                   {return(DP);}
 ";"      				      {return(SEMI);}
 ","                   {return(COL);}
-":="					        {return(ASSIGN);}
+"="					        {return(ASSIGN);}
 
 [a-zA-Z][a-zA-Z0-9]*	{yylval.sValue = strdup(yytext); 
                        return ID;}
