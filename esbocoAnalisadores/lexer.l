@@ -11,14 +11,14 @@
 [0-9]+           	    {yylval.iValue = atoi(yytext); 
                        return NUMBER;}
 "while"      			    {return(WHILE);}
-"begin"      			    {return(BLOCK_BEGIN);}
+"endwhile"      			{return(BLOCK_ENDWHILE);}
 "end"      				    {return(BLOCK_END);}
 "do"      				    {return(DO);}
 "if"      				    {return(IF);}
 "endif"               {return(BLOCK_ENDIF);}
 "then"      			    {return(THEN);}
 "else"      			    {return(ELSE);}
-":"                   {return(DP)}
+":"                   {return(DP);}
 ";"      				      {return(SEMI);}
 ","                   {return(COL);}
 ":="					        {return(ASSIGN);}

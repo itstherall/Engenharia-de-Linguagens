@@ -24,10 +24,10 @@ extern char * yytext;
 
 %% /* Inicio da segunda seção, onde colocamos as regras BNF */
 
-program : declarations subprograms {}
+program : declaration subprograms {}
 		;
 
-subprograms : subprogram			{}
+subprograms : subprogram			  {}
 			| subprogram subprograms  {}
 			;
 
@@ -71,13 +71,13 @@ init_opt :
 		 ;
 
 
-while : WHILE condition block WHILE_BLOCK_END 	{}
+while : WHILE condition block BLOCK_ENDWHILE{}
 	  ;
 
 
-if : IF condition block IF_BLOCK_END			{}
-   | IF condition block ELSE IF condition block IF_BLOCK_END			{}
-   | IF condition block ELSE block IF_BLOCK_END {}
+if : IF condition block BLOCK_ENDIF			{}
+   | IF condition block ELSE IF condition block BLOCK_ENDIF			{}
+   | IF condition block ELSE block BLOCK_ENDIF {}
    ;
 
 block : AC stmlist FC 			{}
