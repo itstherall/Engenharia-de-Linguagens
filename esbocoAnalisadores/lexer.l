@@ -12,16 +12,22 @@
                        return NUMBER;}
 "while"      			    {return(WHILE);}
 "endwhile"      			{return(BLOCK_ENDWHILE);}
-"end"      				    {return(BLOCK_END);}
-"do"      				    {return(DO);}
+"for"      				    {return(FOR);}
+"endfor"              {return(BLOCK_ENDFOR);}
 "if"      				    {return(IF);}
 "endif"               {return(BLOCK_ENDIF);}
+"end"      				    {return(BLOCK_END);}
+"do"      				    {return(DO);}
 "then"      			    {return(THEN);}
 "else"      			    {return(ELSE);}
 ":"                   {return(DP);}
 ";"      				      {return(SEMI);}
 ","                   {return(COL);}
-"="					        {return(ASSIGN);}
+"+"                   {return(OP_AD);}
+"-"                   {return(OP_SUB);}
+"*"                   {return(OP_MULT);}
+"/"                   {return(OP_DIV);}
+"="					          {return(ASSIGN);}
 
 [a-zA-Z][a-zA-Z0-9]*	{yylval.sValue = strdup(yytext); 
                        return ID;}

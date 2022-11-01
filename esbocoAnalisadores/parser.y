@@ -16,7 +16,7 @@ extern char * yytext;
 
 %token <sValue> ID
 %token <iValue> NUMBER
-%token WHILE BLOCK_BEGIN BLOCK_END DO IF THEN ELSE SEMI ASSIGN COL DP BLOCK_ENDWHILE BLOCK_ENDIF
+%token WHILE BLOCK_BEGIN BLOCK_END DO IF THEN ELSE SEMI ASSIGN COL DP BLOCK_ENDWHILE BLOCK_ENDIF TRUE FALSE STRING BOOL FUNCTION PROCEDURE AP FP AC FC MAP DIMENSION AND FOR ENDFOR OP_AD OP_DIV OP_SUB OP_MULT
 
 %start prog
 
@@ -81,6 +81,8 @@ init_opt :
 while : WHILE condition block BLOCK_ENDWHILE{}
 	  ;
 
+for : FOR condition block ENDFOR{}
+    ;
 
 if : IF condition block BLOCK_ENDIF			{}
    | IF condition block BLOCK_ENDIF elseif 	{}
@@ -106,15 +108,15 @@ bool_exp : TRUE
 rel_exp : arth_exp rel_op
 		;
 
-arth_exp : arth_exp + arth_term
-		 | arth_exp - arth_term
+arth_exp : arth_exp OP_AD arth_term
+		 | arth_exp OP_SUB arth_term
 		 | arth_exp
 		 ;
  
- arth_term : arth_term * arth_factor
-		   | arth_term / arth_factor
-		   | arth_term
-		   ;
+arth_term : arth_term OP_MULT arth_factor
+	      | arth_term OP_DIV arth_factor
+	      | arth_term
+	      ;
 
 arth_factor : AP arth_exp FP
 			| ID
