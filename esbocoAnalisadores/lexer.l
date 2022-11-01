@@ -27,6 +27,7 @@
 "-"                   {return(OP_SUB);}
 "*"                   {return(OP_MULT);}
 "/"                   {return(OP_DIV);}
+"%"                   {return(REST_DIV);}
 "="					          {return(ASSIGN);}
 
 [a-zA-Z][a-zA-Z0-9]*	{yylval.sValue = strdup(yytext); 
