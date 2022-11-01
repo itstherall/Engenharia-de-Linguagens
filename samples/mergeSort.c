@@ -66,7 +66,7 @@ procedure mergeSort(number[] arr, number l, number r) {
 } end
 
 
-function number main() {
+function main() : number {
   number[] arr = { 12, 11, 13, 5, 6, 7 };
   number arrSize = lenght(arr);
 
