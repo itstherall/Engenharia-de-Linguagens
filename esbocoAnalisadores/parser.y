@@ -14,6 +14,8 @@ extern char * yytext;
 	char * sValue;  /* string value */
 	};
 
+%start lines
+
 %token <sValue> ID
 %token <iValue> NUMBER
 %token WHILE BLOCK_BEGIN BLOCK_END DO IF THEN ELSE SEMI ASSIGN COL DP BLOCK_ENDWHILE BLOCK_ENDIF TRUE FALSE STRING BOOL FUNCTION PROCEDURE AP FP AC FC MAP DIMENSION AND FOR ENDFOR OP_AD OP_DIV OP_SUB OP_MULT
@@ -105,7 +107,7 @@ bool_exp : TRUE
 		 | bool_exp AND
 		 ;
 
-rel_exp : arth_exp rel_op
+rel_exp : arth_exp rel_op //and, or 
 		;
 
 arth_exp : arth_exp OP_AD arth_term

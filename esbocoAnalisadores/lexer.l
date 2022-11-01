@@ -20,6 +20,8 @@
 "do"      				    {return(DO);}
 "then"      			    {return(THEN);}
 "else"      			    {return(ELSE);}
+"or"      			      {return(OR);}
+"and"      			      {return(AND);}
 ":"                   {return(DP);}
 ";"      				      {return(SEMI);}
 ","                   {return(COL);}
