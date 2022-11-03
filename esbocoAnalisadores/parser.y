@@ -18,8 +18,8 @@ extern char * yytext;
 
 %token <sValue> ID
 %token <iValue> NUMBER_LITERAL
-%token WHILE BLOCK_ENDWHILE FOR BLOCK_ENDFOR DO IF BLOCK_ENDIF THEN ELSE 
-%token SEMI ASSIGN COL DP FUNCTION PROCEDURE RETURN AP FP AC FC 
+%token WHILE BLOCK_ENDWHILE FOR BLOCK_ENDFOR DO IF BLOCK_ENDIF THEN ELSE BLOCK_END
+%token SEMI ASSIGN COL DP FUNCTION PROCEDURE RETURN AP FP AC FC ACC FCC
 %token DIMENSION AND OP_AD OP_DIV OP_SUB OP_MULT
 %token NUMBER STRING BOOL MAP
 %token TRUE FALSE
@@ -42,13 +42,13 @@ subprogram  : FUNCTION ID AP arguments FP DP type AC stmlist FC BLOCK_END
 			;
 
 type : NUMBER | STRING | BOOL | MAP
-	 ;
+	  ;
 
 arguments : argument 						{}
 		  | arguments COL argument 			{}
 		  ;
 
-argument : init_type ID  						{}
+argument : init_type ID  					{}
 		 ;
 
 init_type : type
@@ -69,10 +69,16 @@ stm : declaration 							{}
 	| block 								{}
 	;
 
-declaration : type ids
+declaration : init_type ids
 			;
 
-ids :  id  SEMI    			{}
+/** op 1, 2, 3 e 4 de declaração e inicialização 
+* 1. type a;
+* 2. type a, b, c;
+* 3. type a = 10;
+* 4. type a = 1, b = 2, c = 3;
+*/
+ids :  id SEMI              {}
 	|  id COL ids	 		{}
 	;
 
@@ -82,7 +88,19 @@ id  : ID init_opt 	{}
 init_opt : 
 		 | ASSIGN ID
 		 ;
+/***********/
 
+/** op 1 e 3 de declaração e inicialização 
+* 1. type a;
+* 3. type a = 10;
+*/
+ids : ID init_opt SEMI	 		{}
+	;
+
+init_opt : 
+		 | ASSIGN ID
+		 ;
+/***********/
 
 while : WHILE condition block BLOCK_ENDWHILE{}
 	  ;
@@ -105,12 +123,14 @@ condition : AP bool_exp FP		{}
 		  | AP rel_exp FP		{}
 		  ;
 
+/* TODO */
 bool_exp : TRUE
 		 | FALSE
 		 | rel_exp
 		 | bool_exp AND
 		 ;
 
+/* TODO */
 rel_exp : arth_exp rel_op //and, or 
 		;
 

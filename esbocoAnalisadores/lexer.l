@@ -27,6 +27,8 @@
 "}"                   {return(FC);}
 "("                   {return(AP);}
 ")"                   {return(FP);}
+"["                   {return(ACC);}
+"]"                   {return(FCC);}
 ";"      				      {return(SEMI);}
 ","                   {return(COL);}
 ":"                   {return(DP);}
