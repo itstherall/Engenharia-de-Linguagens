@@ -18,7 +18,8 @@ extern char * yytext;
 
 %token <sValue> ID
 %token <iValue> NUMBER_LITERAL
-%token WHILE BLOCK_ENDWHILE FOR BLOCK_ENDFOR DO IF BLOCK_ENDIF THEN ELSE BLOCK_END
+%token WHILE BLOCK_ENDWHILE  BLOCK_ENDFOR  IF BLOCK_ENDIF  BLOCK_END
+%token FOR DO THEN ELSE
 %token SEMI ASSIGN COL DP FUNCTION PROCEDURE RETURN AP FP AC FC ACC FCC
 %token DIMENSION AND OP_AD OP_DIV OP_SUB OP_MULT
 %token NUMBER STRING BOOL MAP
@@ -40,6 +41,10 @@ subprograms : subprogram			  {}
 subprogram  : FUNCTION ID AP arguments FP DP type AC stmlist FC BLOCK_END
 		    | PROCEDURE ID AP arguments FP AC  stmlist FC BLOCK_END
 			;
+
+
+
+
 
 type : NUMBER | STRING | BOOL | MAP
 	  ;
@@ -64,7 +69,7 @@ stmlist : stm								{}
 	    ;
 
 stm : declaration 							{}
-	| while									{}
+	| while									{} //pq q temos blocos terminaias no
 	| if 									{}
 	| block 								{}
 	;
