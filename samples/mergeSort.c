@@ -8,7 +8,8 @@ procedure merge(number[] arr, number l, number m, number r) {
   number n2 = r - m;
 
   // create temp arrays
-  number[] L[n1], R[n2];
+  number[] L[n1]; 
+  number[] R[n2];
 
   // Copy data to temp arrays L[] and R[]
   for (number i = 0; i < n1; i++) {

@@ -48,7 +48,9 @@
 "=/="					        {return(OP_NEQ);}
 "or"      			      {return(OR);}
 "and"      			      {return(AND);}
-(\[[0-9]+\]|\[\])     {return(DIMENTION)}
+(\[[0-9]+\]|\[\])     {return(ARRAYACESS)}
+"not"                 {return(NOT);}
+"[]"					        {return(DIMENSION);}
 "number"					    {return(NUMBER);}
 "string"					    {return(STRING);}
 "boolean"					    {return(BOOL);}
