@@ -14,18 +14,18 @@ extern char * yytext;
 	char * sValue;  /* string value */
 	};
 
-%start lines
-
 %token <sValue> ID
 %token <iValue> NUMBER_LITERAL
 %token WHILE BLOCK_ENDWHILE  BLOCK_ENDFOR  IF BLOCK_ENDIF  BLOCK_END
 %token FOR DO THEN ELSE
 %token SEMI ASSIGN COL DP FUNCTION PROCEDURE RETURN AP FP AC FC ACC FCC
-%token DIMENSION AND OP_AD OP_DIV OP_SUB OP_MULT
+%token DIMENSION 
+%token OP_AD OP_DIV OP_SUB OP_MULT
 %token NUMBER STRING BOOL MAP
-%token TRUE FALSE
+%token TRUE FALSE AND OR NOT
+%token OP_LARGER OP_SMALLER OP_LEQ OP_SEQ OP_EQ OP_NEQ
 
-%start prog
+%start program
 
 %type <sValue> stm
 
@@ -69,7 +69,7 @@ stmlist : stm								{}
 	    ;
 
 stm : declaration 							{}
-	| while									{} //pq q temos blocos terminaias no
+	| while									{} 
 	| if 									{}
 	| block 								{}
 	;
@@ -93,19 +93,6 @@ id  : ID init_opt 	{}
 init_opt : 
 		 | ASSIGN ID
 		 ;
-/***********/
-
-/** op 1 e 3 de declaração e inicialização 
-* 1. type a;
-* 3. type a = 10;
-*/
-ids : ID init_opt SEMI	 		{}
-	;
-
-init_opt : 
-		 | ASSIGN ID
-		 ;
-/***********/
 
 while : WHILE condition block BLOCK_ENDWHILE{}
 	  ;
@@ -125,19 +112,32 @@ block : AC stmlist FC 			{}
 	  ;
 
 condition : AP bool_exp FP		{}
-		  | AP rel_exp FP		{}
+		  | AP rel_exp FP		{} // precisa estar aqui???
 		  ;
 
 /* TODO */
 bool_exp : TRUE
 		 | FALSE
 		 | rel_exp
-		 | bool_exp AND
+		 | NOT bool_exp
+		 | bool_exp AND bool_exp
+		 | bool_exp OR bool_exp
 		 ;
 
 /* TODO */
-rel_exp : arth_exp rel_op //and, or 
+rel_exps : rel_exps rel_op rel_exp
+		| rel_exp
 		;
+
+rel_exp : arth_exp // TODO tá errado
+
+rel_op : OP_LARGER 
+	   | OP_SMALLER 
+	   | OP_LEQ 
+	   | OP_SEQ
+	   | OP_EQ
+	   | OP_NEQ
+	   ;
 
 arth_exp : arth_exp OP_AD arth_term
 		 | arth_exp OP_SUB arth_term

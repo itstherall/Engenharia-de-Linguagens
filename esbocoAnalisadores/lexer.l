@@ -48,6 +48,7 @@
 "=/="					        {return(OP_NEQ);}
 "or"      			      {return(OR);}
 "and"      			      {return(AND);}
+"not"                 {return(NOT);}
 "[]"					        {return(DIMENSION);}
 "number"					    {return(NUMBER);}
 "string"					    {return(STRING);}
