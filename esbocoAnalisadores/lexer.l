@@ -48,11 +48,13 @@
 "=/="					        {return(OP_NEQ);}
 "or"      			      {return(OR);}
 "and"      			      {return(AND);}
-"[]"					        {return(DIMENSION);}
+(\[[0-9]+\]|\[\])     {return(DIMENTION)}
 "number"					    {return(NUMBER);}
 "string"					    {return(STRING);}
 "boolean"					    {return(BOOL);}
 "map"					        {return(MAP);}
+ 
+
 (\/\*([^*]|[\r\n]|(\*+([^*\/]|[\r\n])))*\*+\/)|(\/\/.*) {printf("Comment: %s.\n", yytext);}
 
 [a-zA-Z][a-zA-Z0-9]*	{yylval.sValue = strdup(yytext); 

@@ -42,12 +42,13 @@
 "=/="					        {printf("OP_NEQ\n");}
 "or"      			      {printf("OR\n");}
 "and"      			      {printf("AND\n");}
+"[]"					        {printf("DIMENSION\n");}
 "number"					    {printf("NUMBER\n");}
 "string"					    {printf("STRING\n");}
 "boolean"					    {printf("BOOL\n");}
 "map"					        {printf("MAP\n");}
 (\/\*([^*]|[\r\n]|(\*+([^*\/]|[\r\n])))*\*+\/)|(\/\/.*) {printf("Comment: %s.\n", yytext);}
-(\[[0-9]+\]|\[\])     {printf("DIMENTION\n")} 
+(\[[0-9]+\]|\[\])     {printf("ARRAYACESS\n")} 
 
 [a-zA-Z][a-zA-Z0-9]*	{printf("ID(%s)\n",yytext);}
 .                     {printf("invalid character");}

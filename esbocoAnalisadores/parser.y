@@ -38,28 +38,28 @@ subprograms : subprogram			  {}
 			| subprogram subprograms  {}
 			;
 
-subprogram  : FUNCTION ID AP arguments FP DP type AC stmlist FC BLOCK_END
-		    | PROCEDURE ID AP arguments FP AC  stmlist FC BLOCK_END
+subprogram  : FUNCTION ID AP argumentos FP DP tipo AC stmlist FC BLOCK_END
+		    | PROCEDURE ID AP argumentos FP AC  stmlist FC BLOCK_END
 			;
 
+tipo : NUMBER 
+	 | STRING 
+	 | BOOL 
+	 | MAP
+	 ;
 
+argumentos : argumento 						{}
+		   | argumentos COL argumento 			{}
+		   ;
 
-
-
-type : NUMBER | STRING | BOOL | MAP
-	  ;
-
-arguments : argument 						{}
-		  | arguments COL argument 			{}
-		  ;
-
-argument : init_type ID  					{}
+argumento : tipo_inicial ID  					{}
 		 ;
 
-init_type : type
-		  | type dimensions
-		  ;
+tipo_inicial : tipo
+		     | tipo dimensions
+		     ;
 
+//essa regra estaria certa par adimension?
 dimensions : DIMENSION
            | DIMENSION dimensions
 		   ;
@@ -69,12 +69,12 @@ stmlist : stm								{}
 	    ;
 
 stm : declaration 							{}
-	| while									{} //pq q temos blocos terminaias no
+	| while									{} 
 	| if 									{}
 	| block 								{}
 	;
 
-declaration : init_type ids
+declaration : tipo_inicial ids
 			;
 
 /** op 1, 2, 3 e 4 de declaração e inicialização 
@@ -152,6 +152,8 @@ arth_term : arth_term OP_MULT arth_factor
 arth_factor : AP arth_exp FP
 			| ID
 			;
+
+rel_op : 
 
 
 
