@@ -129,7 +129,14 @@ rel_exps : rel_exps rel_op rel_exp
 		| rel_exp
 		;
 
-rel_exp : arth_exp // TODO tá errado
+rel_exp : arth_exp rel_op  // TODO tá errado
+		| rel_factor rel_op rel_function
+		| rel_function rel_op rel_factor
+		;
+
+rel_factor: arth_exp
+		  | FUNCTION
+		  ;
 
 rel_op : OP_LARGER 
 	   | OP_SMALLER 
@@ -138,15 +145,17 @@ rel_op : OP_LARGER
 	   | OP_EQ
 	   | OP_NEQ
 	   ;
-
-arth_exp : arth_exp OP_AD arth_term
-		 | arth_exp OP_SUB arth_term
-		 | arth_exp
+/*convenção factores são coisas multiplica|divide (mais em baixo na arv, maior prioridade)
+            termos soma|diminui
+*/
+arth_exp : arth_term OP_AD arth_exp      
+		 | arth_term OP_SUB arth_exp
+		 | arth_term
 		 ;
  
-arth_term : arth_term OP_MULT arth_factor
-	      | arth_term OP_DIV arth_factor
-	      | arth_term
+arth_term : arth_factor OP_MULT arth_term
+	      | arth_factor OP_DIV arth_term
+	      | arth_factor
 	      ;
 
 arth_factor : AP arth_exp FP
