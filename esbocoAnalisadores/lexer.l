@@ -7,9 +7,11 @@
 
 %%
 
-[ \t\n]               ;
+[ \s\n\t]*            ;
 [0-9]+           	    {yylval.iValue = atoi(yytext); 
                        return NUMBER_LITERAL;}
+"true"                {return(TRUE);}
+"false"               {return(FALSE);}
 "procedure"           {return(PROCEDURE);}
 "function"            {return(FUNCTION);}
 "end"      				    {return(BLOCK_END);}
@@ -48,7 +50,6 @@
 "=/="					        {return(OP_NEQ);}
 "or"      			      {return(OR);}
 "and"      			      {return(AND);}
-(\[[0-9]+\]|\[\])     {return(ARRAYACESS)}
 "not"                 {return(NOT);}
 "[]"					        {return(DIMENSION);}
 "number"					    {return(NUMBER);}

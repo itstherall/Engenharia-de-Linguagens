@@ -48,7 +48,7 @@
 "boolean"					    {printf("BOOL\n");}
 "map"					        {printf("MAP\n");}
 (\/\*([^*]|[\r\n]|(\*+([^*\/]|[\r\n])))*\*+\/)|(\/\/.*) {printf("Comment: %s.\n", yytext);}
-(\[[0-9]+\]|\[\])     {printf("ARRAYACESS\n")} 
+\[[0-9]+\]|\[\]       {printf("ARRAYACESS\n")} 
 
 [a-zA-Z][a-zA-Z0-9]*	{printf("ID(%s)\n",yytext);}
 .                     {printf("invalid character");}
