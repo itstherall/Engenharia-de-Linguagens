@@ -7,7 +7,7 @@
 
 %%
 
-[ \s\n\t]*            ;
+[ \s\t\n\r]           ;
 [0-9]+           	    {yylval.iValue = atoi(yytext); 
                        return NUMBER_LITERAL;}
 "true"                {return(TRUE);}

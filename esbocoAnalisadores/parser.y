@@ -33,33 +33,38 @@ extern char * yytext;
 
 %% /* Inicio da segunda seção, onde colocamos as regras BNF */
 
-program : declaration subprograms {}
+program : declaration subprograms {printf("program\n");}
 		;
 
-subprograms : subprogram			  {}
-			| subprogram subprograms  {}
+subprograms : subprogram			  {printf("subprogram\n");}
+			| subprogram subprograms  {printf("subprograms\n");}
 			;
 
 /*
 * Funcao: function myFunc(int a, string b, bool c) : number {instrucoes} end
 * Procedimento: procedure myFunc(int a, string b, bool c) {instrucoes} end
 */
-subprogram  : FUNCTION ID AP argumentos FP DP tipo AC stmlist FC BLOCK_END
-		    | PROCEDURE ID AP argumentos FP AC  stmlist FC BLOCK_END
+subprogram  : FUNCTION ID AP argumentos FP DP tipo AC stmlist FC BLOCK_END  {printf("function id (arg) : tipo {stmlist} end\n");}
+		    | PROCEDURE ID AP argumentos FP AC stmlist FC BLOCK_END			{printf("procedure id (arg) {stmlist} end\n");}
 			;
 
-tipo : NUMBER 
-	 | STRING 
-	 | BOOL 
-	 | MAP
+tipo : NUMBER 	{printf("number\n");}
+	 | STRING 	{printf("string\n");}
+	 | BOOL 	{printf("bool\n");}
+	 | MAP		{printf("map\n");}
 	 ;
 
-argumentos : argumento 						{}
-		   | argumentos COL argumento 			{}
+argumentos : 
+		   | argumento 						    {}
+		   | argumentos COL argumento			{}
 		   ;
 
 argumento : tipo_inicial ID  					{}
-		 ;
+		  ;
+
+parametros : id 						{}
+		   | parametros COL id 			{}
+		   ;
 
 tipo_inicial : tipo
 		     | tipo dimensions
@@ -84,7 +89,8 @@ stm : declaration 							{}
 	| block 								{}
 	;
 
-declaration : tipo_inicial ids
+declaration : 								{printf("no declarations\n");}
+			| tipo_inicial ids				{printf("tipo ids\n");}
 			;
 
 /** op 1, 2, 3 e 4 de declaração e inicialização 
@@ -93,19 +99,21 @@ declaration : tipo_inicial ids
 * 3. type a = 10;
 * 4. type a = 1, b = 2, c = 3;
 * 5. int[] a = {2,3};
-* number[] L;
+* a = b;
 */
-ids :  id SEMI              {}
-	|  id COL ids	 		{}
+
+ids :  id SEMI              {printf("id;\n");}
+	|  id COL ids	 		{printf("id, \n");}
 	;
 
-id  : ID init_opt 	{}
+id  : ID init_opt	{printf("id init_op\n");}
 	;
 
 init_opt : 
-		 | ASSIGN ID
-		 | AP argumentos FP
-		 | ACC arth_exp FCC
+		 | ASSIGN ID {printf(" = id\n");}
+		 | ASSIGN ID AP parametros FP {printf(" = id(par)\n");}
+		 | ASSIGN arth_exp {printf(" = arth_exp\n");}
+		 | ASSIGN bool_exp {printf(" = bool_exp\n");}
 		 ;
 
 while : WHILE condition block BLOCK_ENDWHILE	{}
@@ -129,53 +137,53 @@ condition : AP bool_exp FP		{}
 		  ;
 
 /* TODO */
-bool_exp : bool_term AND bool_exp
-		 | bool_term OR bool_exp
-		 | bool_term
+bool_exp : bool_term AND bool_exp {}
+		 | bool_term OR bool_exp  {}
+		 | bool_term			  {}
 		 ;
 
-bool_term : NOT bool_factor
-		  | bool_factor
+bool_term : NOT bool_factor       {}
+		  | bool_factor           {}
 		  ;
 
-bool_factor : TRUE
-		 	| FALSE
-			| AP bool_exp FP
-		 	| rel_exp
+bool_factor : TRUE                {}
+		 	| FALSE               {} 
+			| AP bool_exp FP      {}
+		 	| rel_exp             {}// TODO colocar ID aqui??
 			;
 |
 
 /* TODO */
-rel_exp : rel_term rel_op rel_term
+rel_exp : rel_term rel_op rel_term {}
 		;
 
-rel_term: arth_exp
-        | FUNCTION
+rel_term: arth_exp {}
+        | FUNCTION {}
 		;
 
-rel_op : OP_EQ //igual
-	   | OP_NEQ //Diferente
-	   | OP_LARGER //maior
-	   | OP_SMALLER //menor
-	   | OP_LEQ //maior igual
-	   | OP_SEQ //menor igual
+rel_op : OP_EQ      {}//igual
+	   | OP_NEQ     {}//Diferente
+	   | OP_LARGER  {}//maior
+	   | OP_SMALLER {}//menor
+	   | OP_LEQ     {}//maior igual
+	   | OP_SEQ     {}//menor igual
 	   ;
 
 /*convenção factores são coisas multiplica|divide (mais em baixo na arv, maior prioridade)
             termos soma|diminui
 */
-arth_exp : arth_term OP_AD arth_exp      
-		 | arth_term OP_SUB arth_exp
-		 | arth_term
+arth_exp : arth_term OP_AD arth_exp      {}
+		 | arth_term OP_SUB arth_exp 	 {}
+		 | arth_term					 {}
 		 ;
  
-arth_term : arth_factor OP_MULT arth_term
-	      | arth_factor OP_DIV arth_term
-	      | arth_factor
+arth_term : arth_factor OP_MULT arth_term {}
+	      | arth_factor OP_DIV arth_term  {}
+	      | arth_factor					  {}
 	      ;
 
-arth_factor : AP arth_exp FP
-			| ID
+arth_factor : AP arth_exp FP   {}
+			| NUMBER_LITERAL   {}// TODO colocar ID aqui??
 			;
  
 
