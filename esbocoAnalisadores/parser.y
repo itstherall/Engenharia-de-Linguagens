@@ -125,10 +125,16 @@ bool_exp : TRUE
 		 ;
 
 /* TODO */
-rel_exps : rel_exps rel_op rel_exp
+rel_exp : rel_term rel_op rel_term
 		| rel_exp
 		;
 
+rel_term: arth_exp
+		| bool_exp
+        | FUNCTION
+		;
+
+/*
 rel_exp : arth_exp rel_op  // TODO tá errado
 		| rel_factor rel_op rel_function
 		| rel_function rel_op rel_factor
@@ -137,14 +143,16 @@ rel_exp : arth_exp rel_op  // TODO tá errado
 rel_factor: arth_exp
 		  | FUNCTION
 		  ;
+*/
 
-rel_op : OP_LARGER 
-	   | OP_SMALLER 
-	   | OP_LEQ 
-	   | OP_SEQ
-	   | OP_EQ
-	   | OP_NEQ
+rel_op : OP_EQ //igual
+	   | OP_NEQ //Diferente
+	   | OP_LARGER //maior
+	   | OP_SMALLER //menor
+	   | OP_LEQ //maior igual
+	   | OP_SEQ //menor igual
 	   ;
+
 /*convenção factores são coisas multiplica|divide (mais em baixo na arv, maior prioridade)
             termos soma|diminui
 */
