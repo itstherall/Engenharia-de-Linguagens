@@ -2,6 +2,21 @@
 
 Linguagem desenvolvida para o curso de Engenharia-de-Linguagens do curso de Engenharia de Software da UFRN no semestre 2022.2.
 
+(1) Introdução: visão geral do projeto
+
+Potrex é uma linguagem de propósito geral de implementação híbrida (compilada e interpretada) que visa a simplificação do trabalho com estruturas de texto. Nesta linguagem a manipulação de estrutura de texto e recursos como os de RegEx são mais intuitivos.
+
+
+(2) Design da implementação:
+      (A) Transformação do código-fonte em unidades léxicas;
+      (B) Representação de símbolos, tabela de símbolos e funções associadas;
+      (C) Tratamento de estruturas condicionais e de repetição;
+      (D) Tratamento de subprogramas;
+      (E) Verificações realizadas (tipos, faixas, declaração em duplicidade, etc).
+
+
+(3) Instruções de uso do compilador.
+
 Para rodar um programa nesta linguagem primeiramente rode o analisador léxico localizado na pasta 'analisador' (arquivo 'lexer.l'):
 ```
 lex lexer.l

@@ -1,0 +1,5 @@
+/*
+ * Crie um programa que leia duas matrizes numéricas e, quando possível, imprima
+ * a soma e o produto dessas matrizes. Caso uma operação não possa ser realizada
+ * para as matrizes lidas, imprima uma mensagem informando da impossibilidade.
+ */

@@ -1,0 +1,43 @@
+/**
+ * Crie um programa que leia uma quantidade desconhecida de números e informe
+ * quantos deles estão nos seguintes intervalos fechados: [0, 25], [26, 50], [51, 75]
+ * e [76, 100]. A entrada de dados deve terminar quando for lido um número negativo.
+ */
+
+ procedure evaluateInterval(number[] list) {
+    // limites do intervalo [0, 25]
+    number imin0 = 0;
+    number imax0 = 25;
+    number total0 = 0;
+     
+    // limites do intervalo [26, 50]
+    number imin1 = 26;
+    number imax1 = 50;
+    number total1 = 0;
+
+    // limites do intervalo [51, 75] 
+    number imin2 = 51;
+    number imax2 = 75;
+    number total2 = 0;
+
+    number total = 0;
+    number i = 0;
+    while( list[i] >= 0 ) {
+        if( i >=0 && i <= 25 ) {
+            total0++;
+        } else if( i >= 26 && i<= 50 ) {
+            total1++;
+        } else if( i >= 51 && i <= 75 ) {
+            total2++;
+        }
+
+        total++;
+    }
+
+    print("Dos " + total + " números recebidos,\n " 
+            + total0 + " estão no intervalo [0, 25],\n " 
+            + total1 + " estão no intervalo [26, 50], e \n " 
+            + total2 + " estão no intervalo [51, 75].\n " 
+        ) 
+
+ }
