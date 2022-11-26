@@ -1,2 +1,7 @@
 *.c 
 *.out
+*.output
+*.exe
+*.h
+*.vcg
+*.DS_Store
