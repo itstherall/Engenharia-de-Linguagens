@@ -53,11 +53,17 @@ tipo : NUMBER 	{printf("number\n");}
 	 | MAP		{printf("map\n");}
 	 ;
 
+/**
+* Por que não: argumento ',' argumentos?
+*/
 argumentos : 
 		   | argumento 						    {}
 		   | argumentos ',' argumento			{}
 		   ;
 
+/**
+* Renomear para abstract_type ou composite_type
+*/
 argumento : tipo_inicial ID  					{}
 		  ;
 
@@ -70,6 +76,7 @@ tipo_inicial : tipo
 		     ;
 
 //essa regra estaria certa par adimension?
+/* Creio que sim, so precisa imaginar como alocar espaço para cada [] */
 /*
 tipo[][] array 
 a[2] = 3
@@ -78,6 +85,8 @@ a[10] = 4
 int a[10];
 a[3] = 2;
 a[3] + 1
+
+Como seria para alocar essas dimensões no sentido da implementação?
 */
 dimensions : DIMENSION
            | DIMENSION dimensions 
@@ -87,11 +96,17 @@ stmlist : stm ';'							{}
 		| stm ';' stmlist 					{}
 	    ;
 
+/**
+* Podemos ter funções dentro de funções?
+*/
 stm : declaration 							{} // io, print, iterator
 	| while									{}
 	| for									{}
 	| if 									{}
 	| block 								{}
+	/* | function_call							{}  */
+	/* | assign								{} ? */
+	|
 	;
 
 declaration : 								{printf("no declarations\n");}
