@@ -90,16 +90,17 @@ stmlist : stm ';'							{}
 	    ;
 
 stm : declaration 							{} // io (print), iterator (while, do, for), flowControl (if, switch)
-	| atom assign exp							{} 
+	| atom assign exp						{} 
 	| while									{}
 	| for									{}
 	| if 									{}
 	| block 								{}
 	| io 									{}
+	| RETURN stm;
 	;
 
 atom : ID						{} 
-	 | ops_access 				{} 
+	 | ID ops_access 				{} 
 	 ;
 
 ops_access : '[' exp ']'				{}
@@ -189,69 +190,21 @@ exp_lv4 : exp_lv3 '*' exp_lv4		{}
 		| exp_lv3					{}
 		;
 
-exp_lv3 : exp_lv2 OP_INCREMENT		{} // TODO como fazer recurssão aqui?????
-		| exp_lv2 OP_DECREMENT		{}
-		| NOT exp_lv3				{} // TODO está correto???
-		| exp_lv2 '^' exp_lv3		{} // TODO está correto???
+exp_lv3 : NOT exp_lv3				{} // TODO está correto???
+		| exp_lv2 '^' exp_lv2		{} // TODO está correto???
 		| exp_lv2					{}
 		;
 
 exp_lv2 : '(' exp ')'				{}
-		| ID '(' parameters ')'		{} 	// retorno de função
-		| NUMBER_LITERAL 			{}  // TODO STRING_LITERAL também cabe aqui? 
+		| ID '(' ')'				{} 	// retorno de função sem parâmetros
+		| ID '(' parameters ')'		{} 	// retorno de função com parâmetros
+		| atom OP_INCREMENT			{} 
+		| atom OP_DECREMENT			{}
+		| NUMBER_LITERAL 			{}  // TODO STRING_LITERAL tambem cabe aqui? 
 		| TRUE						{}
 	 	| FALSE						{}
 		| atom						{}
 		;
-
-/* 
-bool_exp : bool_term AND bool_exp {}
-		 | bool_term OR bool_exp  {}
-		 | bool_term			  {}
-		 ;
-
-bool_term : NOT bool_factor       {}
-		  | bool_factor           {}
-		  ;
-
-bool_factor : TRUE                {}
-		 	| FALSE               {} 
-			| '(' bool_exp ')'    {} 
-		 	| rel_exp             {} // TODO colocar ID aqui??
-			;
-|
-
-rel_exp : rel_term rel_op rel_term {}
-		;
-
-rel_term: arth_exp {}
-        | ID '(' parameters ')' {} // TODO
-		;
-
-rel_op : OP_EQ      {} // igual
-	   | OP_NEQ     {} // Diferente
-	   | '>'  		{} // maior
-	   | '<' 		{} // menor
-	   | OP_GEQ     {} // maior igual
-	   | OP_LEQ     {} // menor igual
-	   ;
-
-// convenção factores são coisas multiplica|divide (mais em baixo na arv, maior prioridade) termos soma|diminui
-
-arth_exp : arth_term '+' arth_exp      	{}
-		 | arth_term '-' arth_exp 	 	{}
-		 | arth_term					{}
-		 ;
- 
-arth_term : arth_factor '*' arth_term 		{}
-	      | arth_factor '/' arth_term  		{}
-	      | arth_factor					    {}
-	      ;
-
-arth_factor : '(' arth_exp ')'   {} // TODO (exp)
-			| NUMBER_LITERAL   	 {} // TODO colocar ID aqui??
-			;
-*/
 
 io : print // TODO open, close, printToFile ???
    ;
