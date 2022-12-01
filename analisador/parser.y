@@ -6,12 +6,15 @@ int yyerror(char *s);
 extern int yylineno;
 extern char * yytext;
 
+// pode criar tipos aqui com o DEFTYPE
+
 %}
 
 %union {
 	int    iValue; 	/* integer value */
 	char   cValue; 	/* char value */
 	char * sValue;  /* string value */
+	// declarar os tipos criados aqui
 	};
 
 %token <sValue> ID
@@ -28,9 +31,11 @@ extern char * yytext;
 %token OP_INCREMENT OP_DECREMENT
 %token SUM_ASSIGN DIFFERENCE_ASSIGN PRODUCT_ASSIGN QUOTIENT_ASSIGN REMAINDER_ASSIGN
 
+// início do programa
 %start program
 
-%type <sValue> stm
+// tipagem das abstrações
+%type <sValue> stm stmlist
 
 %% /* Inicio da segunda seção, onde colocamos as regras BNF */
 
@@ -85,12 +90,20 @@ dimensions : DIMENSION
            | DIMENSION dimensions 
 		   ;
 
-stmlist : stm ';'							{}
-		| stm ';' stmlist 					{}
+stmlist : stm ';'							{$$ = strdup($1);
+											 free($1);}
+		| stm ';' stmlist 					{ tam1 = strlen($1);
+		                                      tam2 = strlen($3);
+											  s = malloc (tam1 + tam2 + 2);
+											  s = $1 ++ ";" ++ $3;
+											  free($1);
+											  free($3);
+											  $$ = s;}
 	    ;
 
 stm : declaration 							{} // io (print), iterator (while, do, for), flowControl (if, switch)
-	| atom assign exp						{} 
+	| atom assign exp						{$1.codigo
+	                                         $1.tipo} 
 	| while									{}
 	| for									{}
 	| if 									{}
@@ -209,8 +222,18 @@ exp_lv2 : '(' exp ')'				{}
 io : print // TODO open, close, printToFile ???
    ;
 
-print : PRINT '(' '"' STRING_LITERAL '"' ')' // TODO permitir que variáveis sejam impressas
+print : PRINT '(' print_recursion ')' // TODO permitir que variáveis sejam impressas
 	  ;
+
+print_recursion : string_atom
+				| print_recursion convertible 
+				;
+
+convertible : atom
+			| NUMBER_LITERAL
+			| TRUE
+			| FALSE
+			;
 
 %% /* Fim da segunda seção */
 

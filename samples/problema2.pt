@@ -34,10 +34,11 @@
         total++;
     }
 
-    print("Dos " + total + " números recebidos,\n " 
-            + total0 + " estão no intervalo [0, 25],\n " 
-            + total1 + " estão no intervalo [26, 50], e \n " 
-            + total2 + " estão no intervalo [51, 75].\n " 
+    print("Dos " _total_ " números recebidos,\n " 
+            _total0_ " estão no intervalo [0, 25],\n " 
+            _total1_ " estão no intervalo [26, 50], e \n " 
+            _total2_ " estão no intervalo [51, 75].\n " 
         ) 
+
 
  }

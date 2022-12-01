@@ -1,3 +1,6 @@
-procedure p(){
-    string a=2;
+procedure p() {
+    string a = 2;
+    number b, c, d;
+    a = b;
+    b = c + d;
 } end
