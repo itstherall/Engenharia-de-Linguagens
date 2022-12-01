@@ -6,13 +6,19 @@ int yyerror(char *s);
 extern int yylineno;
 extern char * yytext;
 
+// def myStruct 
+
 %}
 
 %union {
+	struct myStruct nomeDele;
 	int    iValue; 	/* integer value */
 	char   cValue; 	/* char value */
 	char * sValue;  /* string value */
 	};
+
+// eu declaroo a struct de atributos fora da union ou dentro?
+// herança de struct
 
 %token <sValue> ID
 %token <iValue> NUMBER_LITERAL
@@ -211,6 +217,8 @@ io : print // TODO open, close, printToFile ???
 
 print : PRINT '(' '"' STRING_LITERAL '"' ')' // TODO permitir que variáveis sejam impressas
 	  ;
+
+	  
 
 %% /* Fim da segunda seção */
 

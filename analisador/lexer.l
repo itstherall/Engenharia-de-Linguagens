@@ -21,6 +21,7 @@ letterAndDigit  [a-zA-Z0-9]
 "end"      				    {return(BLOCK_END);}
 "return"              {return(RETURN);}
 "print"               {return(PRINT);}
+"numberScan"          {return(NUMBER_SCAN);}
 "while"      			    {return(WHILE);}
 "endwhile"      			{return(BLOCK_ENDWHILE);}
 "do"      				    {return(DO);}
