@@ -1,5 +1,109 @@
-/*
+/**
  * Crie um programa que leia duas matrizes numéricas e, quando possível, imprima
  * a soma e o produto dessas matrizes. Caso uma operação não possa ser realizada
  * para as matrizes lidas, imprima uma mensagem informando da impossibilidade.
  */
+
+procedure myFunc() {
+
+    number linhaMatriz1 = 0;
+    number colunaMatriz1 = 0;
+    number linhaMatriz2 = 0;
+    number colunaMatriz2 = 0;
+
+    linhaMatriz1 = numberScan();
+    colunaMatriz1 = numberScan();
+
+    linhaMatriz2 = numberScan();
+    colunaMatriz2 = numberScan();
+
+    number matriz1[linhaMatriz1][colunaMatriz1];
+    number matriz2[linhaMatriz2][colunaMatriz2];
+
+    /**
+    * Recebendo valores
+    */
+    for(number i = 0; i<linhaMatriz1; i++){
+
+        for(number j = 0; j<colunaMatriz1; j++){
+                
+            matriz1[i][j] = numberScan();
+        }
+    }
+
+    for(number i = 0; i<linhaMatriz2; i++){
+
+        for(number j = 0; j<colunaMatriz2; j++){
+                
+            matriz2[i][j] = numberScan();
+        }
+    }
+
+    /**
+     * Efetuando soma
+     */
+    if(linhaMatriz1 == linhaMatriz2 and colunaMatriz1 == colunaMatriz2){
+
+       /**
+        * Realizando a soma
+        */
+        number resultadoSoma[linhaMatriz1][colunaMatriz2];
+
+        for(number i = 0; i<linhaMatriz1; i++){
+
+            for(number j = 0; j<colunaMatriz2; j++){
+                
+                resultadoSoma[i][j] = matriz1[i][j] + matriz2[i][j];
+            }
+        }
+
+       /**
+        * Mostrando resultado
+        */
+        for(number i = 0; i<linhaMatriz2; i++){
+
+            for(number j = 0; j<colunaMatriz2; j++){
+                
+               print(resultadoSoma[i][j]);
+            }
+        }
+
+
+    } endif
+    else {
+        print("Não é possível somar matrizes de ordens diferentes.");
+    } endif
+
+
+    if(colunaMatriz1 == linhaMatriz2){
+
+        number resultadoMultiplicacao[linhaMatriz1][colunaMatriz2];
+
+        for (number i = 0; i < linhaMatriz1; ++i) {
+
+            for (number j = 0; j < colunaMatriz2; ++j) {
+
+                for (number k = 0; k < colunaMatriz1; ++k) {
+                    resultadoMultiplicacao[i][j] = (first[i][k] * second[k][j]) + result[i][j];
+                }
+            }
+        }
+
+       /**
+        * Mostrando resultado
+        */
+        for(number i = 0; i<linhaMatriz2; i++){
+
+            for(number j = 0; j<colunaMatriz2; j++){
+                
+               print(resultadoSoma[i][j]);
+            }
+        }
+
+    } endif
+    else {
+        print("Não é possível multiplicar matrizes com ordens da coluna da matriz 1 e linha da matriz 2 diferentes");
+    } endif
+
+
+} end
