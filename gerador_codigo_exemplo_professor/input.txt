@@ -1,0 +1,19 @@
+
+funcao f(bool a, b, c): bool
+   se (a) entao
+      se (b) entao
+         retorne verdadeiro;
+      senao
+         retorne c;
+      fim_se  
+   fim_se
+   retorne falso;
+fim_funcao
+
+programa
+   se (f(verdadeiro, falso, verdadeiro)) entao
+      escreva("f é verdadeiro");
+   senao
+      escreva("f é falso");
+   fim_se
+fim_programa

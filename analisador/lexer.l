@@ -12,7 +12,7 @@ letterAndDigit  [a-zA-Z0-9]
 %%
 
 [ \s\t\n\r]           ;
-{digit}+           	    {yylval.iValue = atoi(yytext); 
+{digit}+           	  {yylval.iValue = atoi(yytext); 
                        return NUMBER_LITERAL;}
 "true"                {return(TRUE);}
 "false"               {return(FALSE);}
