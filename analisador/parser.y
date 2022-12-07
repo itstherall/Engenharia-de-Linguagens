@@ -35,9 +35,8 @@ extern FILE * yyin, * yyout;
 
 %start program
 
-%type <sValue> assign tipo
 %type <nodeValue> stm stmlist declaration program subprograms subprogram 
-%type <nodeValue> args argumentos argumento atom tipo_inicial
+%type <nodeValue> args argumentos argumento atom tipo_inicial tipo id ids assign init_opt
 %type <nodeValue> assignment exp exp_lv2 exp_lv3 exp_lv4 exp_lv5 exp_lv6 exp_lv7 exp_lv8
 
 %% /* Inicio da segunda seção, onde colocamos as regras BNF */
@@ -82,14 +81,11 @@ subprogram  : FUNCTION ID '(' argumentos ')' ':' tipo '{' stmlist '}' BLOCK_END
 				}
 			;
 
-tipo : NUMBER 	{ $$ = $1;
+tipo : NUMBER 	{ $$ = createNode($1);
 				  free($1);}
-	 | STRING 	{ $$ = $1;
-				  free($1);}
-	 | BOOL 	{ $$ = $1;
-				  free($1);}
-	 | MAP		{$$ = $1;
-				  free($1);}
+	 | STRING 	{}
+	 | BOOL 	{}
+	 | MAP		{}
 	 ;
 
 argumentos : 					{$$ = createNode("");}
@@ -110,15 +106,14 @@ argumento : tipo_inicial ID  		{char* s = concat(3, $1->target_code, " ", $2);
 									 free($2);
 									 $$ = createNode(s);
 									 free(s);
-									}
+									} // TODO trocar id por atom
 		  ;
 
 parameters : exp 							{}
 		   | parameters ',' exp 			{}
 		   ;
 
-tipo_inicial : tipo					{$$ = createNode($1);
-									 free($1);}
+tipo_inicial : tipo					{$$ = $1;}
 		     | tipo dimensions		{}
 		     ;
 
@@ -149,7 +144,7 @@ stmlist : stm ';'			{char* s = concat(2, $1->target_code, ";\n");
 							}
 	    ;
 
-stm : declaration 							{} // io (print), iterator (while, do, for), flowControl (if, switch)
+stm : declaration 							{ $$ = $1; } // io (print), iterator (while, do, for), flowControl (if, switch)
 	| assignment							{ $$ = $1; } 
 	| while									{}
 	| for									{}
@@ -159,7 +154,9 @@ stm : declaration 							{} // io (print), iterator (while, do, for), flowContro
 	| return								{}
 	;
 
-atom : ID						{ $$ = createNode($1); } 
+atom : ID						{ $$ = createNode($1);
+								  free($1);
+								} 
 	 | ID ops_access 			{} 
 	 ;
 
@@ -167,14 +164,21 @@ ops_access : '[' exp ']'				{}
 		   | '[' exp ']' ops_access		{}
 		   ;
 
-assignment : atom assign exp		{char* s = concat(3, $1->target_code, $2, $3->target_code);
-	 								 freeNode($1);
-									 freeNode($3);
-									 $$ = createNode(s);
-									 free(s);}
+assignment : atom assign exp		{ char* s = concat(3, $1->target_code, $2->target_code, $3->target_code);
+	 								  freeNode($1);
+									  freeNode($2);
+									  freeNode($3);
+									  $$ = createNode(s);
+									  free(s);
+									}
 
-declaration : 								{$$ = createNode("");}
-			| tipo_inicial ids				{printf("tipo ids\n");}
+declaration : 								{ $$ = createNode(""); }
+			| tipo_inicial ids				{ char* s = concat(3, $1->target_code, " ", $2->target_code);
+											  freeNode($1);
+											  freeNode($2);
+											  $$ = createNode(s);
+											  free(s);
+											}
 			;
 
 /** op 1, 2, 3 e 4 de declaração e inicialização 
@@ -186,23 +190,43 @@ declaration : 								{$$ = createNode("");}
 * a = b;
 */
 
-ids :  id	                {printf("id;\n");}
+ids :  id	                { $$ = $1; }
 	|  id ',' ids	 		{printf("id, \n");}
 	;
 
-id  : ID init_opt	{printf("id init_op\n");}
+id  : ID init_opt	{ char* s = concat(2, $1, $2->target_code);
+					  free($1);
+					  freeNode($2);
+					  $$ = createNode(s);
+					  free(s);
+					}
 	;
 
-init_opt : 
-		 | assign exp {printf(" = exp\n");}
+init_opt : 			  { $$ = createNode(""); }
+		 | assign exp { char* s = concat(4, " ", $1->target_code, " ", $2->target_code);
+						freeNode($1);
+						freeNode($2);
+						$$ = createNode(s);
+						free(s);
+		 			  }
 		 ;
 
-assign : '='        { $$ = &yytext[0]; }
-	   | SUM_ASSIGN
-	   | DIFFERENCE_ASSIGN
-	   | PRODUCT_ASSIGN
-	   | QUOTIENT_ASSIGN
-	   | REMAINDER_ASSIGN
+assign : '='        			{ $$ = createNode("="); }
+	   | SUM_ASSIGN				{ $$ = createNode($1);
+	   							  free($1);
+								}
+	   | DIFFERENCE_ASSIGN		{ $$ = createNode($1);
+	   							  free($1);
+								}
+	   | PRODUCT_ASSIGN			{ $$ = createNode($1);
+	   							  free($1);
+								}
+	   | QUOTIENT_ASSIGN		{ $$ = createNode($1);
+	   							  free($1);
+								}
+	   | REMAINDER_ASSIGN		{ $$ = createNode($1);
+	   							  free($1);
+								}
 	   ;
 
 while : WHILE condition block BLOCK_ENDWHILE	{}
@@ -245,8 +269,18 @@ exp_lv6 : exp_lv5 '<' exp_lv6		{}
 		| exp_lv5					{ $$ = $1; }
 		;
 
-exp_lv5 : exp_lv4 '+' exp_lv5		{}
-		| exp_lv4 '-' exp_lv5		{}
+exp_lv5 : exp_lv4 '+' exp_lv5		{ char* s = concat(3, $1->target_code, " + ", $3->target_code);
+									  freeNode($1);
+									  freeNode($3);
+									  $$ = createNode(s);
+									  free(s);
+									}
+		| exp_lv4 '-' exp_lv5		{ char* s = concat(3, $1->target_code, " - ", $3->target_code);
+									  freeNode($1);
+									  freeNode($3);
+									  $$ = createNode(s);
+									  free(s);
+									}
 		| exp_lv4					{ $$ = $1; }
 		;
 
@@ -257,7 +291,12 @@ exp_lv4 : exp_lv3 '*' exp_lv4		{}
 		;
 
 exp_lv3 : NOT exp_lv3				{} // TODO está correto???
-		| exp_lv2 '^' exp_lv2		{} // TODO está correto???
+		| exp_lv2 '^' exp_lv2		{char* s = concat(3, $1->target_code, "^", $3->target_code);
+									  freeNode($1);
+									  freeNode($3);
+									  $$ = createNode(s);
+									  free(s);
+									} // TODO está correto???
 		| exp_lv2					{ $$ = $1; }
 		;
 
@@ -267,8 +306,10 @@ exp_lv2 : '(' exp ')'				{}
 		| atom OP_INCREMENT			{} 
 		| atom OP_DECREMENT			{}
 		| NUMBER_LITERAL 			{ char * str;
+									  str = malloc(sizeof(char) * 100); // TODO generalizar para qualquer número...
 									  sprintf(str, "%d", $1);
 									  $$ = createNode(str);
+									  free(str);
 									}  // TODO STRING_LITERAL tambem cabe aqui? 
 		| TRUE						{}
 	 	| FALSE						{}

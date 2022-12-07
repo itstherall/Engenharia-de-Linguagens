@@ -3,3 +3,6 @@
 *.exe
 *.vcg
 *.DS_Store
+lex.yy.c
+y.tab.c
+compiler

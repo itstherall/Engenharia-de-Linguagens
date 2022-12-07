@@ -45,6 +45,7 @@ letterAndDigit  [a-zA-Z0-9]
 "*"                   {return(yytext[0]);}
 "/"                   {return(yytext[0]);}
 "%"                   {return(yytext[0]);}
+"^"                   {return(yytext[0]);}
 "++"                  {return(OP_INCREMENT);}
 "--"                  {return(OP_DECREMENT);}
 "="					          {return(yytext[0]);}
