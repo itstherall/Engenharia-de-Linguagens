@@ -3,6 +3,7 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <stdarg.h>
 
 /* TODO Tabela de simbolos */
 
@@ -33,6 +34,8 @@ typedef struct node {
  
 void freeNode(s_node *);
 
-s_node * createNode(char *, char *);
+s_node * createNode(char *);
+
+char* concat(int count, ...);
 
 #endif

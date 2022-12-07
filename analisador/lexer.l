@@ -63,16 +63,20 @@ letterAndDigit  [a-zA-Z0-9]
 "and"      			      {return(AND);}
 "not"                 {return(NOT);}
 "[]"					        {return(DIMENSION);}
-"number"					    {return(NUMBER);}
-"string"					    {return(STRING);}
-"boolean"					    {return(BOOL);}
-"map"					        {return(MAP);}
+"number"					    {yylval.sValue = strdup("number");
+                        return(NUMBER);}
+"string"					    {yylval.sValue = strdup("string");
+                        return(STRING);}
+"boolean"					    {yylval.sValue = strdup("boolean");
+                        return(BOOL);}
+"map"					        {yylval.sValue = strdup("map");
+                        return(MAP);}
  
 
 (\/\*([^*]|[\r\n]|(\*+([^*\/]|[\r\n])))*\*+\/)|(\/\/.*) {printf("Comment: %s.\n", yytext);}
 
 {letter}{letterAndDigit}*	{yylval.sValue = strdup(yytext); 
-                       return ID;}
+                           return ID;}
 .                      {yyerror("invalid character");}
 
 %%

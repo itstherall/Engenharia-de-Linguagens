@@ -1,11 +1,14 @@
 %{
 #include <stdio.h>
-#include "../lib/potrex.h"
+#include "lib/potrex.h"
 
 int yylex(void);
 int yyerror(char *s);
 extern int yylineno;
 extern char * yytext;
+extern FILE * yyin, * yyout;
+
+
 
 %}
 
@@ -13,6 +16,7 @@ extern char * yytext;
 	int    iValue; 	/* integer value */
 	char   cValue; 	/* char value */
 	char * sValue;  /* string value */
+	struct node * nodeValue;  /* ??? */
 	};
 
 %token <sValue> ID
@@ -23,53 +27,99 @@ extern char * yytext;
 %token FUNCTION PROCEDURE RETURN
 %token PRINT
 %token DIMENSION
-%token NUMBER STRING BOOL MAP
+%token <sValue> NUMBER STRING BOOL MAP
 %token TRUE FALSE AND OR NOT
 %token OP_GEQ OP_LEQ OP_EQ OP_NEQ
 %token OP_INCREMENT OP_DECREMENT
-%token SUM_ASSIGN DIFFERENCE_ASSIGN PRODUCT_ASSIGN QUOTIENT_ASSIGN REMAINDER_ASSIGN
+%token <sValue> SUM_ASSIGN DIFFERENCE_ASSIGN PRODUCT_ASSIGN QUOTIENT_ASSIGN REMAINDER_ASSIGN
 
 %start program
 
-%type <sValue> stm
+%type <sValue> assign tipo
+%type <nodeValue> stm stmlist declaration program subprograms subprogram 
+%type <nodeValue> args argumentos argumento atom tipo_inicial
+%type <nodeValue> assignment exp exp_lv2 exp_lv3 exp_lv4 exp_lv5 exp_lv6 exp_lv7 exp_lv8
 
 %% /* Inicio da segunda seção, onde colocamos as regras BNF */
 
-program : declaration subprograms {printf("program\n");}
+program : declaration subprograms {fprintf(yyout, "%s\n%s", $1->target_code, $2->target_code);
+								   freeNode($1);
+                      			   freeNode($2);
+								   }
 		;
 
-subprograms : subprogram			  {printf("subprogram\n");}
-			| subprogram subprograms  {printf("subprograms\n");}
+subprograms : subprogram			  {$$ = $1;}
+			| subprogram subprograms  {char *s = concat(3, $1->target_code, "\n", $2->target_code);
+                             		   freeNode($1);
+                             		   freeNode($2);
+                             		   $$ = createNode(s);
+                             		   free(s);
+									  }
 			;
 
 /*
 * Funcao: function myFunc(int a, string b, bool c) : number {instrucoes} end
 * Procedimento: procedure myFunc(int a, string b, bool c) {instrucoes} end
 */
-subprogram  : FUNCTION ID '(' argumentos ')' ':' tipo '{' stmlist '}' BLOCK_END  {printf("function id (arg) : tipo {stmlist} end\n");}
-		    | PROCEDURE ID '(' argumentos ')' '{' stmlist '}' BLOCK_END			{printf("procedure id (arg) {stmlist} end\n");}
+subprogram  : FUNCTION ID '(' argumentos ')' ':' tipo '{' stmlist '}' BLOCK_END  
+				{
+					char *s1 = concat(9, $7, " ", $2, " (", $4->target_code, ") ", "{\n", $9->target_code, "}\n");
+					free($7);
+					free($2);
+					freeNode($4);
+					freeNode($9);
+					$$ = createNode(s1);
+					free(s1);
+				}
+		    | PROCEDURE ID '(' argumentos ')' '{' stmlist '}' BLOCK_END	
+				{
+					char *s1 = concat(8, "void ", $2, " (", $4->target_code, ") ", "{\n", $7->target_code, "}\n");
+					free($2);
+					freeNode($4);
+					freeNode($7);
+					$$ = createNode(s1);
+					free(s1);
+				}
 			;
 
-tipo : NUMBER 	{printf("number\n");}
-	 | STRING 	{printf("string\n");}
-	 | BOOL 	{printf("bool\n");}
-	 | MAP		{printf("map\n");}
+tipo : NUMBER 	{ $$ = $1;
+				  free($1);}
+	 | STRING 	{ $$ = $1;
+				  free($1);}
+	 | BOOL 	{ $$ = $1;
+				  free($1);}
+	 | MAP		{$$ = $1;
+				  free($1);}
 	 ;
 
-argumentos : 
-		   | argumento 						    {}
-		   | argumentos ',' argumento			{}
+argumentos : 					{$$ = createNode("");}
+		   | args				{$$ = $1;}
 		   ;
 
-argumento : tipo_inicial ID  					{}
+args : argumento 					{$$ = $1;}
+	 | argumento ',' args			{char* s = concat(3, $1->target_code, ", ", $3->target_code);
+	 								 freeNode($1);
+									 freeNode($3);
+									 $$ = createNode(s);
+									 free(s);
+									}
+	 ;
+
+argumento : tipo_inicial ID  		{char* s = concat(3, $1->target_code, " ", $2);
+									 freeNode($1);
+									 free($2);
+									 $$ = createNode(s);
+									 free(s);
+									}
 		  ;
 
 parameters : exp 							{}
 		   | parameters ',' exp 			{}
 		   ;
 
-tipo_inicial : tipo
-		     | tipo dimensions
+tipo_inicial : tipo					{$$ = createNode($1);
+									 free($1);}
+		     | tipo dimensions		{}
 		     ;
 
 //essa regra estaria certa par adimension?
@@ -82,33 +132,48 @@ int a[10];
 a[3] = 2;
 a[3] + 1
 */
-dimensions : DIMENSION
-           | DIMENSION dimensions 
+dimensions : DIMENSION					{}
+           | DIMENSION dimensions		{}
 		   ;
 
-stmlist : stm ';'							{}
-		| stm ';' stmlist 					{}
+stmlist : stm ';'			{char* s = concat(2, $1->target_code, ";\n");
+							freeNode($1);
+							$$ = createNode(s);
+							free(s);
+							}
+		| stm ';' stmlist 	{char* s = concat(3, $1->target_code, ";\n", $3->target_code);
+	 					 	 freeNode($1);
+							 freeNode($3);
+							 $$ = createNode(s);
+							 free(s);
+							}
 	    ;
 
 stm : declaration 							{} // io (print), iterator (while, do, for), flowControl (if, switch)
-	| atom assign exp						{} 
+	| assignment							{ $$ = $1; } 
 	| while									{}
 	| for									{}
 	| if 									{}
 	| block 								{}
 	| io 									{}
-	| RETURN stm;
+	| return								{}
 	;
 
-atom : ID						{} 
-	 | ID ops_access 				{} 
+atom : ID						{ $$ = createNode($1); } 
+	 | ID ops_access 			{} 
 	 ;
 
 ops_access : '[' exp ']'				{}
 		   | '[' exp ']' ops_access		{}
 		   ;
 
-declaration : 								{printf("no declarations\n");}
+assignment : atom assign exp		{char* s = concat(3, $1->target_code, $2, $3->target_code);
+	 								 freeNode($1);
+									 freeNode($3);
+									 $$ = createNode(s);
+									 free(s);}
+
+declaration : 								{$$ = createNode("");}
 			| tipo_inicial ids				{printf("tipo ids\n");}
 			;
 
@@ -132,7 +197,7 @@ init_opt :
 		 | assign exp {printf(" = exp\n");}
 		 ;
 
-assign : '='
+assign : '='        { $$ = &yytext[0]; }
 	   | SUM_ASSIGN
 	   | DIFFERENCE_ASSIGN
 	   | PRODUCT_ASSIGN
@@ -161,39 +226,39 @@ condition : '(' exp ')'		{}
 		  ;
 
 exp : exp_lv8 OR exp 	{}
-	| exp_lv8			{}
+	| exp_lv8			{ $$ = $1; }
 	;
 
 exp_lv8 : exp_lv7 AND exp_lv8 	{}
-		| exp_lv7				{}
+		| exp_lv7				{ $$ = $1; }
 		;
 
 exp_lv7 : exp_lv6 OP_EQ exp_lv7		{}
 		| exp_lv6 OP_NEQ exp_lv7	{}
-		| exp_lv6					{}
-		|
+		| exp_lv6					{ $$ = $1; }
+		;
 
 exp_lv6 : exp_lv5 '<' exp_lv6		{}
 		| exp_lv5 OP_LEQ exp_lv6	{}
 		| exp_lv5 '>' exp_lv6		{}
 		| exp_lv5 OP_GEQ exp_lv6	{}
-		| exp_lv5					{}
+		| exp_lv5					{ $$ = $1; }
 		;
 
 exp_lv5 : exp_lv4 '+' exp_lv5		{}
 		| exp_lv4 '-' exp_lv5		{}
-		| exp_lv4
+		| exp_lv4					{ $$ = $1; }
 		;
 
 exp_lv4 : exp_lv3 '*' exp_lv4		{}
 		| exp_lv3 '/' exp_lv4		{}
 		| exp_lv3 '%' exp_lv4		{}
-		| exp_lv3					{}
+		| exp_lv3					{ $$ = $1;}
 		;
 
 exp_lv3 : NOT exp_lv3				{} // TODO está correto???
 		| exp_lv2 '^' exp_lv2		{} // TODO está correto???
-		| exp_lv2					{}
+		| exp_lv2					{ $$ = $1; }
 		;
 
 exp_lv2 : '(' exp ')'				{}
@@ -201,7 +266,10 @@ exp_lv2 : '(' exp ')'				{}
 		| ID '(' parameters ')'		{} 	// retorno de função com parâmetros
 		| atom OP_INCREMENT			{} 
 		| atom OP_DECREMENT			{}
-		| NUMBER_LITERAL 			{}  // TODO STRING_LITERAL tambem cabe aqui? 
+		| NUMBER_LITERAL 			{ char * str;
+									  sprintf(str, "%d", $1);
+									  $$ = createNode(str);
+									}  // TODO STRING_LITERAL tambem cabe aqui? 
 		| TRUE						{}
 	 	| FALSE						{}
 		| atom						{}
@@ -213,10 +281,28 @@ io : print // TODO open, close, printToFile ???
 print : PRINT '(' '"' STRING_LITERAL '"' ')' // TODO permitir que variáveis sejam impressas
 	  ;
 
+return : RETURN stm					{}
+	   ;
+	   
 %% /* Fim da segunda seção */
 
-int main (void) {
-	return yyparse();
+int main (int argc, char ** argv) {
+ 	int codigo;
+
+    if (argc != 3) {
+       printf("Usage: $./compiler input.txt output.txt\nClosing application...\n");
+       exit(0);
+    }
+    
+    yyin = fopen(argv[1], "r");
+    yyout = fopen(argv[2], "w");
+
+    codigo = yyparse();
+
+    fclose(yyin);
+    fclose(yyout);
+
+	return codigo;
 }
 
 int yyerror (char *msg) {

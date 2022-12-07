@@ -4,11 +4,11 @@
  * fonte, avalia a expressão x^2 - y + c e imprime seu resultado na tela. 
  **/
 
-procedure compute(number x, number y) {
-    number c = 1;
+procedure compute() {
+    // number c = 1;
 
-    number exp = x^2 - y + c;
+    // number exp = x^2 - y + c;
 
-    print("x^2 - y + c = " + exp);
+    // print("x^2 - y + c = " + exp);
     
 } end
