@@ -6,7 +6,11 @@
 #include <stdarg.h>
 
 /* TODO Tabela de simbolos */
+typedef struct symbol_table{
+    char* type;
 
+
+} s_symbol_table;
 
 /* TODO pilha */
 

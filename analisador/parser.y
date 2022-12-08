@@ -1,5 +1,9 @@
 %{
 #include <stdio.h>
+
+// Para poder usar a potenciação 
+#include<math.h>
+
 #include "lib/potrex.h"
 
 int yylex(void);
@@ -41,6 +45,12 @@ extern FILE * yyin, * yyout;
 
 %% /* Inicio da segunda seção, onde colocamos as regras BNF */
 
+//TODO: Criar o entrypoint por ser uma linguagem compilada
+//TODO: Fazer tudo ser double e tudo bem pela categoria que explica
+//TODO: Tabela de símbolos
+//TODO: Pilha de escopo (ideia é usar container a principio)
+//TODO: Preencher a tabela de símbolos
+
 program : declaration subprograms {fprintf(yyout, "%s\n%s", $1->target_code, $2->target_code);
 								   freeNode($1);
                       			   freeNode($2);
@@ -81,7 +91,9 @@ subprogram  : FUNCTION ID '(' argumentos ')' ':' tipo '{' stmlist '}' BLOCK_END
 				}
 			;
 
-tipo : NUMBER 	{ $$ = createNode($1);
+tipo : NUMBER 	{ /*$$ = createNode($1); Pensar em como fazer casting(int, double) */
+				  char* str = concat(1, "double");
+				  $$ = createNode(str);
 				  free($1);}
 	 | STRING 	{}
 	 | BOOL 	{}
@@ -291,7 +303,7 @@ exp_lv4 : exp_lv3 '*' exp_lv4		{}
 		;
 
 exp_lv3 : NOT exp_lv3				{} // TODO está correto???
-		| exp_lv2 '^' exp_lv2		{char* s = concat(3, $1->target_code, "^", $3->target_code);
+		| exp_lv2 '^' exp_lv2		{char* s = concat(6, "pow","(", $1->target_code, ",", $3->target_code, ")");
 									  freeNode($1);
 									  freeNode($3);
 									  $$ = createNode(s);
@@ -307,7 +319,7 @@ exp_lv2 : '(' exp ')'				{}
 		| atom OP_DECREMENT			{}
 		| NUMBER_LITERAL 			{ char * str;
 									  str = malloc(sizeof(char) * 100); // TODO generalizar para qualquer número...
-									  sprintf(str, "%d", $1);
+									  sprintf(str, "%lf", $1);
 									  $$ = createNode(str);
 									  free(str);
 									}  // TODO STRING_LITERAL tambem cabe aqui? 
