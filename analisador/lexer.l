@@ -12,10 +12,11 @@ letterAndDigit  [a-zA-Z0-9]
 %%
 
 [ \s\t\n\r]           ;
-{digit}+           	  {yylval.iValue = atoi(yytext); 
+{digit}+|({digit}+.{digit}+)           	  {yylval.nValue = strtod(yytext, NULL); 
                        return NUMBER_LITERAL;}
 "true"                {return(TRUE);}
 "false"               {return(FALSE);}
+"start"               {return(START);}
 "procedure"           {return(PROCEDURE);}
 "function"            {return(FUNCTION);}
 "end"      				    {return(BLOCK_END);}

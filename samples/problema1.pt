@@ -4,8 +4,10 @@
  * fonte, avalia a expressão x^2 - y + c e imprime seu resultado na tela. 
  **/
 
-procedure compute(number x, number y) {
+start () {
     number c = 1;
+    number x = 4.5; 
+    number y = 5.5;
 
     number exp = x^2 - y + c;
 

@@ -1,7 +1,7 @@
 all: potrexcompiler
 
 potrexcompiler: lex.yy.c y.tab.c 
-	gcc lex.yy.c y.tab.c ./lib/potrex.c -o compiler
+	gcc lex.yy.c y.tab.c ./lib/potrex.c -lm -o compiler
 
 potrex.c:
 	gcc /lib/potrex.c

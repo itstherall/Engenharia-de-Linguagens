@@ -1,5 +1,6 @@
 %{
 #include <stdio.h>
+#include <math.h>
 #include "lib/potrex.h"
 
 int yylex(void);
@@ -9,22 +10,21 @@ extern char * yytext;
 extern FILE * yyin, * yyout;
 
 
-
 %}
 
 %union {
-	int    iValue; 	/* integer value */
+	double nValue; 	/* double value */
 	char   cValue; 	/* char value */
 	char * sValue;  /* string value */
 	struct node * nodeValue;  /* ??? */
 	};
 
 %token <sValue> ID
-%token <iValue> NUMBER_LITERAL
+%token <nValue> NUMBER_LITERAL
 %token <sValue> STRING_LITERAL
 %token WHILE BLOCK_ENDWHILE FOR BLOCK_ENDFOR DO BLOCK_ENDDO BLOCK_END
 %token IF BLOCK_ENDIF THEN ELSE
-%token FUNCTION PROCEDURE RETURN
+%token START FUNCTION PROCEDURE RETURN
 %token PRINT
 %token DIMENSION
 %token <sValue> NUMBER STRING BOOL MAP
@@ -35,19 +35,26 @@ extern FILE * yyin, * yyout;
 
 %start program
 
-%type <nodeValue> stm stmlist declaration program subprograms subprogram 
+%type <nodeValue> stm stmlist declaration main program subprograms subprogram 
 %type <nodeValue> args argumentos argumento atom tipo_inicial tipo id ids assign init_opt
 %type <nodeValue> assignment exp exp_lv2 exp_lv3 exp_lv4 exp_lv5 exp_lv6 exp_lv7 exp_lv8
 
 %% /* Inicio da segunda seção, onde colocamos as regras BNF */
 
-program : declaration subprograms {fprintf(yyout, "%s\n%s", $1->target_code, $2->target_code);
-								   freeNode($1);
-                      			   freeNode($2);
+
+//TODO: Fazer tudo ser double e tudo bem pela categoria que explica
+//TODO: Tabela de símbolos
+//TODO: Pilha de escopo (ideia é usar container a principio)
+//TODO: Preencher a tabela de símbolos
+
+program : declaration subprograms main {fprintf(yyout, "%s\n%s\n%s\n", $1->target_code, $2->target_code, $3->target_code);
+								   		freeNode($1);
+                      			   		freeNode($2);
+								   		freeNode($3);
 								   }
 		;
 
-subprograms : subprogram			  {$$ = $1;}
+subprograms : 						  {$$ = createNode("");}
 			| subprogram subprograms  {char *s = concat(3, $1->target_code, "\n", $2->target_code);
                              		   freeNode($1);
                              		   freeNode($2);
@@ -55,6 +62,12 @@ subprograms : subprogram			  {$$ = $1;}
                              		   free(s);
 									  }
 			;
+
+main : START '(' ')' '{' stmlist '}' BLOCK_END 	{char * s = concat(3, "int main(){\n", $5->target_code, "return 0;\n}\n" );
+                                                 freeNode($5);
+                                                 $$ = createNode(s);
+                                                 free(s);
+												}
 
 /*
 * Funcao: function myFunc(int a, string b, bool c) : number {instrucoes} end
@@ -81,8 +94,10 @@ subprogram  : FUNCTION ID '(' argumentos ')' ':' tipo '{' stmlist '}' BLOCK_END
 				}
 			;
 
-tipo : NUMBER 	{ $$ = createNode($1);
-				  free($1);}
+tipo : NUMBER 	{ 
+				  $$ = createNode(concat(1, "double"));
+				  free($1);
+				}
 	 | STRING 	{}
 	 | BOOL 	{}
 	 | MAP		{}
@@ -291,7 +306,7 @@ exp_lv4 : exp_lv3 '*' exp_lv4		{}
 		;
 
 exp_lv3 : NOT exp_lv3				{} // TODO está correto???
-		| exp_lv2 '^' exp_lv2		{char* s = concat(3, $1->target_code, "^", $3->target_code);
+		| exp_lv2 '^' exp_lv2		{char* s = concat(6, "pow","(", $1->target_code, ",", $3->target_code, ")");
 									  freeNode($1);
 									  freeNode($3);
 									  $$ = createNode(s);
@@ -305,9 +320,9 @@ exp_lv2 : '(' exp ')'				{}
 		| ID '(' parameters ')'		{} 	// retorno de função com parâmetros
 		| atom OP_INCREMENT			{} 
 		| atom OP_DECREMENT			{}
-		| NUMBER_LITERAL 			{ char * str;
-									  str = malloc(sizeof(char) * 100); // TODO generalizar para qualquer número...
-									  sprintf(str, "%d", $1);
+		| NUMBER_LITERAL 			{ char* str;
+									  str = malloc(sizeof(char) * 100); 
+									  sprintf(str, "%lf", $1);
 									  $$ = createNode(str);
 									  free(str);
 									}  // TODO STRING_LITERAL tambem cabe aqui? 
@@ -319,10 +334,13 @@ exp_lv2 : '(' exp ')'				{}
 io : print // TODO open, close, printToFile ???
    ;
 
-print : PRINT '(' '"' STRING_LITERAL '"' ')' // TODO permitir que variáveis sejam impressas
-	  ;
+print : PRINT '(' print_recursion ')' // TODO permitir que variáveis sejam impressas
+      ;
 
-return : RETURN stm					{}
+print_recursion : 				{}
+				;
+
+return : RETURN stm				{}
 	   ;
 	   
 %% /* Fim da segunda seção */

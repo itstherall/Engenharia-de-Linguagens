@@ -48,3 +48,41 @@ char* concat(int count, ...){
 
   return str;
 }
+
+s_stack* create_stack(){
+  s_stack* stack = (s_stack*) malloc(sizeof(s_stack));
+  stack->scopes = malloc(sizeof(s_scope));
+  stack->size = 0;
+
+  return stack;
+}
+
+void add_scope_to_stack(s_stack* stack, s_scope* scope){
+  stack->scopes = (s_scope*) realloc(stack->scopes, sizeof(s_scope) * (stack->size + 1));
+  stack->scopes[stack->size] = *(scope);
+  stack->size += 1;
+}
+
+int remove_scope_from_stack(s_stack* stack, s_scope* scope){
+    if(stack->size > 0) {
+      stack->scopes = realloc(stack->scopes, sizeof(s_scope) * (stack->size - 1));
+      stack->size -= 1;
+
+      return 0;
+    } 
+    
+    return -1;
+}
+
+int scope_contains(s_stack* stack, s_block_element* element){
+
+}
+
+void add_element_to_scope(s_scope* scope, s_block_element* element){
+
+}
+
+void remove_element_from_scope(s_scope* scope, s_block_element* element){
+
+}
+
