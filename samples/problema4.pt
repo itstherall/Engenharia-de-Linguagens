@@ -1,0 +1,122 @@
+/** 
+ * Defina o tipo rational_t para representar números racionais. O tipo rational_t
+ * deve ser representado como um registro (ou tipo correspondente) com campos
+ * inteiros numerador e denominador. Em seguida, escreva os seguintes subprogramas:
+ * 
+ * A) Subprograma que, dados dois parâmetros inteiros a e b, onde b != 0, retorna
+ * um valor rational_t para representar a fração a/b.
+ *
+ * B) Subprograma que, dados dois parâmetros do tipo rational_t, retorna true
+ * se eles representam o mesmo número racional ou f alse, em caso contrário.
+ *
+ * C) Subprogramas que retornem um valor rational_t correspondente a soma,
+ * negação, subtração, multiplicação, inverso e divisão entre valores rational_t,
+ * passados como parâmetros (um subprograma por operação).
+ * 
+ * No programa principal, invoque cada um dos subprogramas e imprima os resultados
+ * produzidos, indicando numerador e denominador.
+**/
+
+/**
+ * O tipo deve ser registro, ou seja, um map. Mas maps não costumam ter atributos fixos,
+ * então escrevi como um struct. Algo pra alterar na escrita?
+**/
+new_type rational_t map {
+    number numerador;
+    number denominador;
+}
+
+
+/**
+ * Função auxiliar pra o algoritmo de soma/subtração
+**/
+function mdc(number n, number m): number {
+    if (n%m == 0) return n;
+    else if (m%n == 0) return m;
+    else if (m > n) return mdc(n, m%n);
+    else return mdc(m, n%m);
+} end
+
+
+/**
+ * Função auxiliar pra o algoritmo de soma/subtração
+**/
+function mmc(number a, number b): number {
+    return a * (b / mdc(a, b));
+} end
+
+
+/**
+ * Lançamento de exceção? Ou retorna um rational_t inválido, sla?
+**/
+function createRat(number a, number b): rational_t {
+    if (b != 0) {
+        rational_t rat = {a, b};
+	return rat;
+    } else {
+        error("Divisão por zero");
+    } endif 
+} end
+
+
+/**
+ * Alguma alteração na forma de acesso aos atributos?
+**/
+function equalsRat(rational_t a, rational_t b): boolean {
+    return a.numerador/a.denominador == b.numerador/b.denominador;
+} end
+
+
+function addRat(rational_t a, rational_t b): rational_t {
+    number denominador = mmc(a.denominador, b.denominador);
+
+    rational_t rat = {mmc/a.denominador * a.numerador + mmc/b.denominador * b.numerador, mmc}; 
+    return rat;
+} end
+
+
+function subtractRat(rational_t a, rational_t b): rational_t {
+    number denominador = mmc(a.denominador, b.denominador);
+
+    rational_t rat = {mmc/a.denominador * a.numerador - mmc/b.denominador * b.numerador, mmc}; 
+    return rat;
+} end
+
+
+function multiplyRat(rational_t a, rational_t b): rational_t {
+    rational_t rat = {a.numerador * b.numerador, a.denominador * b.denominador};
+    return rat;
+} end
+
+
+function divideRat(rational_t a, rational_t b): rational_t {
+    rational_t rat = {a.numerador * b.denominador, a.denominador * b.numerador};
+    return rat;
+} end
+
+
+function inverseRat(rational_t a): rational_t {
+    rational_t rat = {a.denominador, a.numerador};
+    return rat;
+} end
+
+
+start () {
+    number a = 5;
+    number b = 9;
+    rational_t t1 = createRat(a, b);
+    print("Criacao do rational_t com os numeros " + a + " e " + b + ": " + t1.numerador + "/" + t1.denominador + "\n");
+
+    rational_t t2 = createRat(b, a);
+    print("Testes de igualdade:\n");
+    print("Igualdade entre " + a + "/" + b + " e " + a + "/" + b + ": " + equalsRat(t1, t1) + "\n");
+    print("Igualdade entre " + a + "/" + b + " e " + b + "/" + a + ": " + equalsRat(t1, t2) + "\n");
+
+    print("Testes de operações:\n");
+    print("Somar " + a + "/" + b + " e " + b + "/" + a + ": " + addRat(t1, t2) + "\n");
+    print("Subtrair " + b + "/" + a + " e " + a + "/" + b + ": " + subtractRat(t1, t2) + "\n");
+    print("Multiplicar " + a + "/" + b + " e " + b + "/" + a + ": " + multiplyRat(t1, t2) + "\n");
+    print("Dividir " + a + "/" + b + " e " + b + "/" + a + ": " + divideRat(t1, t2) + "\n");
+    print("Inverso de " + a + "/" + b + ": " + inverseRat(t1) + "\n");
+    
+} end
