@@ -75,7 +75,7 @@ int remove_scope_from_stack(s_stack* stack, s_scope* scope){
 }
 
 int scope_contains(s_stack* stack, s_block_element* element){
-
+    return 0;
 }
 
 void add_element_to_scope(s_scope* scope, s_block_element* element){

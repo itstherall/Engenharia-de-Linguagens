@@ -7,7 +7,7 @@ potrex.c:
 	gcc /lib/potrex.c
 
 lex.yy.c: lexer.l
-	lex lexer.l
+	lex -d lexer.l
 
 y.tab.c: parser.y  
 	yacc parser.y -d -v

@@ -14,8 +14,12 @@ letterAndDigit  [a-zA-Z0-9]
 [ \s\t\n\r]           ;
 {digit}+|({digit}+.{digit}+)           	  {yylval.nValue = strtod(yytext, NULL); 
                        return NUMBER_LITERAL;}
-"true"                {return(TRUE);}
-"false"               {return(FALSE);}
+"true"                {yylval.sValue = strdup(yytext);
+                        return(TRUE);}
+"false"               {yylval.sValue = strdup(yytext);
+                        return(FALSE);}
+\"(\\.|[^"\\])*\"     {yylval.sValue = strdup(yytext); 
+                         return STRING_LITERAL;}
 "start"               {return(START);}
 "procedure"           {return(PROCEDURE);}
 "function"            {return(FUNCTION);}

@@ -27,17 +27,19 @@ extern FILE * yyin, * yyout;
 %token START FUNCTION PROCEDURE RETURN
 %token PRINT
 %token DIMENSION
-%token <sValue> NUMBER STRING BOOL MAP
-%token TRUE FALSE AND OR NOT
+%token <sValue> NUMBER STRING BOOL MAP TRUE FALSE
+%token AND OR NOT
 %token OP_GEQ OP_LEQ OP_EQ OP_NEQ
 %token OP_INCREMENT OP_DECREMENT
 %token <sValue> SUM_ASSIGN DIFFERENCE_ASSIGN PRODUCT_ASSIGN QUOTIENT_ASSIGN REMAINDER_ASSIGN
 
 %start program
 
-%type <nodeValue> stm stmlist declaration main program subprograms subprogram 
-%type <nodeValue> args argumentos argumento atom tipo_inicial tipo id ids assign init_opt
-%type <nodeValue> assignment exp exp_lv2 exp_lv3 exp_lv4 exp_lv5 exp_lv6 exp_lv7 exp_lv8
+%type <nodeValue> stm stmlist declaration main program subprograms subprogram
+%type <nodeValue> print print_strs str
+%type <nodeValue> args argumentos argumento atom tipo_inicial tipo id ids func_call pars parameters assign init_opt
+%type <nodeValue> assignment io while for if 
+%type <nodeValue> exp exp_lv2 exp_lv3 exp_lv4 exp_lv5 exp_lv6 exp_lv7 exp_lv8
 
 %% /* Inicio da segunda seção, onde colocamos as regras BNF */
 
@@ -121,11 +123,20 @@ argumento : tipo_inicial ID  		{char* s = concat(3, $1->target_code, " ", $2);
 									 free($2);
 									 $$ = createNode(s);
 									 free(s);
-									} // TODO trocar id por atom
+									}
 		  ;
 
-parameters : exp 							{}
-		   | parameters ',' exp 			{}
+pars :				{ $$ = createNode(""); }
+	 | parameters	{ $$ = $1; }
+	 ;
+
+parameters : exp 					{ $$ = $1; }
+		   | parameters ',' exp 	{ char* s = concat(3, $1->target_code, ", ", $3->target_code);
+									 freeNode($1);
+									 freeNode($3);
+									 $$ = createNode(s);
+									 free(s);
+									 }
 		   ;
 
 tipo_inicial : tipo					{$$ = $1;}
@@ -165,11 +176,11 @@ stm : declaration 							{ $$ = $1; } // io (print), iterator (while, do, for), 
 	| for									{}
 	| if 									{}
 	| block 								{}
-	| io 									{}
+	| io 									{ $$ = $1; }
 	| return								{}
 	;
 
-atom : ID						{ $$ = createNode($1);
+atom : ID						{ $$ = createNode($1); // TODO ao invés de colocar string do id, fazer um lookup na tabela de símbolos e pegar seu valor
 								  free($1);
 								} 
 	 | ID ops_access 			{} 
@@ -316,12 +327,11 @@ exp_lv3 : NOT exp_lv3				{} // TODO está correto???
 		;
 
 exp_lv2 : '(' exp ')'				{}
-		| ID '(' ')'				{} 	// retorno de função sem parâmetros
-		| ID '(' parameters ')'		{} 	// retorno de função com parâmetros
 		| atom OP_INCREMENT			{} 
 		| atom OP_DECREMENT			{}
+		| func_call					{}
 		| NUMBER_LITERAL 			{ char* str;
-									  str = malloc(sizeof(char) * 100); 
+									  str = malloc(sizeof(char) * 1000); 
 									  sprintf(str, "%lf", $1);
 									  $$ = createNode(str);
 									  free(str);
@@ -331,16 +341,59 @@ exp_lv2 : '(' exp ')'				{}
 		| atom						{}
 		;
 
-io : print // TODO open, close, printToFile ???
+func_call : ID '(' pars ')'		{ char* s = concat(4, $1, "(", $3->target_code, ")");
+								  free($1);
+								  freeNode($3);
+								  $$ = createNode(s);
+								  free(s);
+								} // TODO ao invés de colocar string do id, fazer um lookup na tabela de símbolos e pegar seu valor
+		  ;
+
+io : print		{ $$ = $1; } // TODO open, close, printToFile ???
    ;
 
-print : PRINT '(' print_recursion ')' // TODO permitir que variáveis sejam impressas
+print : PRINT '(' print_strs ')'		{ char* s = concat(3, "printf(\"", $3->target_code, "\")");
+										  freeNode($3);
+										  $$ = createNode(s);
+										  free(s);
+										}
       ;
 
-print_recursion : 				{}
-				;
+print_strs : str 				{ $$ = $1; }
+		   | str print_strs		{ char* s = concat(2, $1->target_code, $2->target_code);
+								  freeNode($1);
+								  freeNode($2);
+								  $$ = createNode(s);
+								  free(s);
+								}
+		   ;
 
-return : RETURN stm				{}
+str : STRING_LITERAL		{ // remove aspas do fim
+							  char* end = $1;
+							  while(*(end + 1) != '\0') {
+								end++;
+							  }
+							  *end = '\0';
+
+							  // + 1 para remover aspas do começo
+							  $$ = createNode($1 + 1);
+							  free($1);
+							}
+	| func_call				{ $$ = $1; }
+	| NUMBER_LITERAL		{ char* str;
+							  str = malloc(sizeof(char) * 1000); 
+							  sprintf(str, "%lf", $1);
+							  $$ = createNode(str);
+							  free(str);
+							}
+	| TRUE					{ $$ = createNode($1);
+							  free($1); }
+	| FALSE					{ $$ = createNode($1);
+							  free($1); }
+	| atom					{ $$ = $1; } 
+	; // TODO como manda computar uma expressão aqui no meio e imprimir o resultado?
+
+return : RETURN stm		{}
 	   ;
 	   
 %% /* Fim da segunda seção */
