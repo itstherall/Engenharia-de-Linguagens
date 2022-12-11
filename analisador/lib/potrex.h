@@ -19,6 +19,7 @@ typedef struct block_element{
 
     /* Identificador do elemento */
     char* id;
+
 } s_block_element;
 
 typedef struct scope{
