@@ -15,7 +15,7 @@
 /**
  * Formato retirado do link no problema: https://www.ime.usp.br/~pf/algoritmos/aulas/binst.html
 **/
-typedef bin_tree map {
+map bin_tree {
    number id;
    number value;
    bin_tree *esq, *dir; 
@@ -28,7 +28,7 @@ function insert (bin_tree r, bin_tree *new) {
     if (r == NULL) { return new; } endif
     if (r.id > new.id) {
         r.esq = insert(r.esq, new);
-    } else {
+    } endif else {
         r.dir = insert(r.dir, new);
     } endif
     return r;
@@ -40,7 +40,7 @@ function insert (bin_tree r, bin_tree *new) {
 function createTree(number[] values): bin_tree {
     bin_tree tree;
     if (values.length > 0) {
-	    tree.id = values[0];
+	tree.id = values[0];
     	tree.value = 0;
 
         for (number i = 1; i < values.length; i++) {
@@ -63,7 +63,8 @@ function minId(bin_tree tree): number[] {
         level++;
     } endwhile
 
-    number[] min = [index.id, level];
+    number[] min;
+    min = [index.id, level];
     return min;
 } end
 
@@ -75,25 +76,29 @@ function maxId(bin_tree tree): number[] {
         level++;
     } endwhile
 
-    number[] max = [index.id, level];
+    number[] max;
+    max = [index.id, level];
     return max;
 } end
 
 procedure printTree(bin_tree tree, number level) {
-    print("Nível: " + level + "\nChave: " + tree.id + "\nValor: " + tree.value + "\n");
-    if (tree.esq) printTree(tree.esq, level++);
-    if (tree.dir) printTree(tree.dir, level++);
+    print("Nível: " level "\nChave: " tree.id "\nValor: " tree.value "\n");
+    if (tree.esq) { printTree(tree.esq, level++); } endif
+    if (tree.dir) { printTree(tree.dir, level++); } endif
 } end
 
 start () {
-    number[] nums = [5, 10, 2, 35, 20, 24, 48, 9];
+    number[] nums;
+    nums = [5, 10, 2, 35, 20, 24, 48, 9];
     bin_tree tree = createTree(nums);
     print("Impressao da arvore:\n");
     printTree(tree);
 
-    number[] min = minId(tree);
-    number[] max = maxId(tree);
+    number[] min;
+    min = minId(tree);
+    number[] max;
+    max = maxId(tree);
 
-    print("Chave minima: " + min[0] + ", nivel: " + min[1] + "\n");
-    print("Chave maxima: " + max[0] + ", nivel: " + max[1] + "\n");
+    print("Chave minima: " min[0] ", nivel: " min[1] "\n");
+    print("Chave maxima: " max[0] ", nivel: " max[1] "\n");
 } end

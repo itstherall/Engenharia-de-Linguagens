@@ -21,7 +21,7 @@
  * O tipo deve ser registro, ou seja, um map. Mas maps não costumam ter atributos fixos,
  * então escrevi como um struct. Algo pra alterar na escrita?
 **/
-new_type rational_t map {
+map rational_t {
     number numerador;
     number denominador;
 }
@@ -31,10 +31,10 @@ new_type rational_t map {
  * Função auxiliar pra o algoritmo de soma/subtração
 **/
 function mdc(number n, number m): number {
-    if (n%m == 0) return n;
-    else if (m%n == 0) return m;
-    else if (m > n) return mdc(n, m%n);
-    else return mdc(m, n%m);
+    if (n%m == 0) { return n; } endif 
+    else if (m%n == 0) { return m; } endif
+    else if (m > n) { return mdc(n, m%n); } endif
+    else { return mdc(m, n%m); } endif
 } end
 
 
@@ -53,7 +53,7 @@ function createRat(number a, number b): rational_t {
     if (b != 0) {
         rational_t rat = {a, b};
 	return rat;
-    } else {
+    } endif else {
         error("Divisão por zero");
     } endif 
 } end
@@ -105,18 +105,18 @@ start () {
     number a = 5;
     number b = 9;
     rational_t t1 = createRat(a, b);
-    print("Criacao do rational_t com os numeros " + a + " e " + b + ": " + t1.numerador + "/" + t1.denominador + "\n");
+    print("Criacao do rational_t com os numeros " a " e " b ": " t1.numerador "/" t1.denominador "\n");
 
     rational_t t2 = createRat(b, a);
     print("Testes de igualdade:\n");
-    print("Igualdade entre " + a + "/" + b + " e " + a + "/" + b + ": " + equalsRat(t1, t1) + "\n");
-    print("Igualdade entre " + a + "/" + b + " e " + b + "/" + a + ": " + equalsRat(t1, t2) + "\n");
+    print("Igualdade entre " a "/" b " e " a "/" b ": " equalsRat(t1, t1) "\n");
+    print("Igualdade entre " a "/" b " e " b "/" a ": " equalsRat(t1, t2) "\n");
 
     print("Testes de operações:\n");
-    print("Somar " + a + "/" + b + " e " + b + "/" + a + ": " + addRat(t1, t2) + "\n");
-    print("Subtrair " + b + "/" + a + " e " + a + "/" + b + ": " + subtractRat(t1, t2) + "\n");
-    print("Multiplicar " + a + "/" + b + " e " + b + "/" + a + ": " + multiplyRat(t1, t2) + "\n");
-    print("Dividir " + a + "/" + b + " e " + b + "/" + a + ": " + divideRat(t1, t2) + "\n");
-    print("Inverso de " + a + "/" + b + ": " + inverseRat(t1) + "\n");
+    print("Somar " a "/" b " e " b "/" a ": " addRat(t1, t2) "\n");
+    print("Subtrair " b "/" a " e " a "/" b ": " subtractRat(t1, t2) "\n");
+    print("Multiplicar " a "/" b " e " b "/" a ": " multiplyRat(t1, t2) "\n");
+    print("Dividir " a "/" b " e " b "/" a ": " divideRat(t1, t2) "\n");
+    print("Inverso de " a "/" b ": " inverseRat(t1) "\n");
     
 } end

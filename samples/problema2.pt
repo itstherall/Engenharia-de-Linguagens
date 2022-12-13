@@ -6,42 +6,32 @@
 
  procedure evaluateInterval(number[] list) {
     // limites do intervalo [0, 25]
-    number imin0 = 0;
-    number imax0 = 25;
     number total0 = 0;
      
     // limites do intervalo [26, 50]
-    number imin1 = 26;
-    number imax1 = 50;
     number total1 = 0;
 
     // limites do intervalo [51, 75] 
-    number imin2 = 51;
-    number imax2 = 75;
     number total2 = 0;
 
     number total = 0;
     number i = 0;
     while( list[i] >= 0 ) {
-        if( i >=0 && i <= 25 ) {
-            total0++;
-        } else if( i >= 26 && i<= 50 ) {
-            total1++;
-        } else if( i >= 51 && i <= 75 ) {
-            total2++;
+        if( i >=0 and i <= 25 ) {
+            total0 ++;
+        } endif else if( i >= 26 and i<= 50 ) {
+            total1 ++;
+        } endif else if( i >= 51 and i <= 75 ) {
+            total2 ++;
         } endif
-
-        total++;
+        total ++;
     } endwhile
 
-    print("Dos " total " numeros recebidos,\n " 
-            total0 " estão no intervalo [0, 25],\n " 
-            total1 " estão no intervalo [26, 50], e \n " 
-            total2 " estão no intervalo [51, 75].\n " 
-    );
+    print("Dos " total " numeros recebidos,\n " total0 " estão no intervalo [0, 25],\n " total1 " estão no intervalo [26, 50], e \n " total2 " estão no intervalo [51, 75].\n ");
  } end
 
  start() {
-    number[] list = [5, 10, 2, 35, 20, 24, 48, 9];
-    evaluateInterval(list);
+    number[] lista;
+    lista = [5, 10, 2, 35, 20, 24, 48, 9, -1];
+    evaluateInterval(lista);
  } end

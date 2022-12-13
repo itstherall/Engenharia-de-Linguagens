@@ -15,10 +15,10 @@
  **/
 
 procedure mdc(number n, number m, number* r) {
-    if (n%m == 0) r = n;
-    else if (m%n == 0) r = m;
-    else if (m > n) mdc(n, m%n, r);
-    else mdc(m, n%m, r);
+    if (n%m == 0) { r = n; } endif
+    else if (m%n == 0) { r = m; } endif
+    else if (m > n) { mdc(n, m%n, r); } endif
+    else  { mdc(m, n%m, r); } endif
 } end
 
 start () {
@@ -27,5 +27,5 @@ start () {
     number r = 1;
 
     mdc(n, m, r);
-    print("MDC de " + n + " e " + m + ": " + r + "\n");
+    print("MDC de " n " e " m ": " r "\n");
 } end
