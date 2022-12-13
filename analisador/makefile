@@ -1,10 +1,13 @@
 all: potrexcompiler
 
 potrexcompiler: lex.yy.c y.tab.c 
-	gcc lex.yy.c y.tab.c ./lib/potrex.c -lm -o compiler
+	gcc lex.yy.c y.tab.c ./lib/potrex.c ./lib/escopo.c -lm -o compiler
 
 potrex.c:
 	gcc /lib/potrex.c
+
+escopo.c:
+	gcc /lib/escopo.c
 
 lex.yy.c: lexer.l
 	lex -d lexer.l

@@ -1,7 +1,4 @@
 #include "potrex.h"
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 
 void freeNode(s_node * r){
   if (r) {
@@ -46,61 +43,7 @@ char* concat(int count, ...){
   }
 
   return str;
-}
-
-s_stack* create_stack(){
-  s_stack* stack = (s_stack*) malloc(sizeof(s_stack));
-  stack->scopes = malloc(sizeof(s_scope));
-  stack->size = 0;
-
-  return stack;
-}
-
-void add_scope_to_stack(s_stack* stack, s_scope* scope){
-  stack->scopes = (s_scope*) realloc(stack->scopes, sizeof(s_scope) * (stack->size + 1));
-  stack->scopes[stack->size] = *(scope);
-  stack->size += 1;
-
-  
-}
-
-int remove_scope_from_stack(s_stack* stack, s_scope* scope){
-  if(stack->size > 0) {
-    stack->scopes = realloc(stack->scopes, sizeof(s_scope) * (stack->size - 1));
-    stack->size -= 1;
-
-    return 1;
-  } 
-    
-  return 0;
-}
-
-
-//não pode ser o escopo direto já que o mesmo se refere a saber se o escopo contém??
-// 0 como false
-// 1 como true
-int scope_contains(s_scope* scope, s_block_element* element){
-
-  if(scope->block_elements->id == element->id){
-    //achou elementos com ids iguais logo ja existe no escopo
-    return 1; 
-  } 
-  
-  return 0;
-}
-  /*saber se a variavel está declarada no espoco atual*/
-  
-
-void add_element_to_scope(s_scope* scope, s_block_element* element){
-  //primeiro confere se existe ao escopo atual
-  if(scope_contains(scope,element) != 0){
-    //se não existir, adicione o element
-  
-  }
-  //não foi possivel adicionar o elemento ao escopo
-}
-
-void remove_element_from_scope(s_scope* scope, s_block_element* element){
 
 }
+
 

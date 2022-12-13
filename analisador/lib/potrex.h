@@ -5,38 +5,13 @@
 #include <stdio.h>
 #include <stdarg.h>
 
-
 /* Tipos existentes na linguagem */
-typedef enum primitive_type {
+typedef enum primitive_type { // TODO deveria ser um union??
     number, 
     boolean,
     string, 
     map
 } e_primitive_type;
-
-/* TODO pilha */
-typedef struct block_element{
-
-    /* Identificador do elemento */
-    char* id;
-} s_block_element;
-
-typedef struct scope{
-
-    /* Todos os elementos de um escopo */
-    s_block_element* block_elements;
-
-    /* Tamanho atual do escopo */
-    int scope_size;
-
-    /* Nome do escopo */
-    char* name;
-} s_scope;
-
-typedef struct stack{
-    s_scope* scopes;
-    int size;
-} s_stack;
 
 
 /* TODO Tabela de simbolos */
@@ -73,15 +48,5 @@ s_node * createNode(char *);
 char* concat(int count, ...);
 
 s_stack* create_stack();
-
-void add_scope_to_stack(s_stack* stack, s_scope* scope);
-
-int remove_scope_from_stack(s_stack* stack, s_scope* scope);
-
-int scope_contains(s_scope* scope, s_block_element* element);
-
-void add_element_to_scope(s_scope* scope, s_block_element* element);
-
-void remove_element_from_scope(s_scope* scope, s_block_element* element);
 
 #endif

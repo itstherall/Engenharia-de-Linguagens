@@ -1,39 +1,45 @@
+#ifndef H_TABLE
+#define H_TABLE
+
+#include <stdio.h>
+#include <string.h>
+
+#include "table.h"
+#include "potrex.h"
+
+
 /* tabela de símbolos **
- * Tabela hash genérica com encadeamento externo. 
- * Baseado no Programa 5.2 (pg 106) do livro 
- * "Modern Compiler Implementation in C - Andrew W. Appel"
+ * tabela de símbolos implementada como lista ligada.
  */
 
-typedef struct container
+typedef struct table_container
 {
-    char* key;
-    void* binding;
+    char* key; // scopeName ++ symbol ++ id, onde symbol é @ para variáveis e # para funções
+    symbol* binding;
     t_container *next;
 } t_container;
 
-// SIZE deve ser primo
-#define SIZE 109
+t_container *table; // TODO deve ser uma lista ligada, conferir
 
-/* A tabela de símbolos é uma hash table implementada como um array de ponteiros para containers */
-t_container *table[SIZE];
+typedef struct symbol
+{
+    char* id; // TODO precisa? 
+    e_primitive_type type;
+    void* value; // TODO deveria ser um union dos tipos do c?
 
-/* Função hash simplificada. Converte um string num índice. */
-unsigned int hash(char* s0);
-
-/* construtor */
-t_container* Container( char* key, void* binding, t_container *next);
+} s_symbol;
 
 /* Entra key->symbol na tabela
  * key = subprograma ++ nome
- * bindings que possuem uma mesma chave são inseridos como se fosse uma pilha.
+ * 
  */
-void insert(char* key, void* binding);
+void insert(char* key, s_symbol binding);
 
 /* Veja o valor de key na tabela */
-void* lookup(char* key);
+s_symbol lookup(char* key);
 
-/* pop o binding mais recente e retorne sua chave. 
- * Isso pode expor outro binding para a mesma chave.
- * Feito no fim de um escopo para restaurar o escopo anterior.
+/* remove um símbolo da tabela
  */
-void pop(char* key);
+void remove(char* key);
+
+#endif

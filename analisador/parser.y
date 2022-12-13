@@ -17,6 +17,7 @@ extern FILE * yyin, * yyout;
 	char   cValue; 	/* char value */
 	char * sValue;  /* string value */
 	struct node * nodeValue;  /* ??? */
+	
 	};
 
 %token <sValue> ID
@@ -49,12 +50,12 @@ extern FILE * yyin, * yyout;
 //TODO: Pilha de escopo (ideia é usar container a principio)
 //TODO: Preencher a tabela de símbolos
 
-program : declaration subprograms main {
-														fprintf(yyout, "%s\n%s\n%s\n", $1->target_code, $2->target_code, $3->target_code);
-								   					freeNode($1);
-                      			   			freeNode($2);
-								   					freeNode($3);
-								   				}
+program : {create_scope_stack();} declaration subprograms main { fprintf(yyout, "%s\n%s\n%s\n", $1->target_code, $2->target_code, $3->target_code);
+								   								 freeNode($1);
+                      			   								 freeNode($2);
+								   								 freeNode($3);
+																 pop();
+								   								}
 		;
 
 subprograms : 						  		{ $$ = createNode(""); }
