@@ -3,12 +3,39 @@
 
 void create_scope_stack() {
     stack = (s_scope_stack*) malloc(sizeof(s_scope_stack));
+    /*Checando se a alocação ocorreu corretamente*/
+    if(!stack){
+        printf("Alocação não foi feita! Memória esgotada!\n");
+        exit(1);
+    }
 
     s_container* global = (s_container*) malloc(sizeof(s_container));
+    /*Checando se a alocação ocorreu corretamente*/
+    if(!global){
+        printf("Alocação não foi feita! Memória esgotada!\n");
+        exit(1);
+    }
     global->name = "global";
 
     stack->scopes[0] = *global;
     stack->size = 1;
+}
+
+
+s_container* create_container(){
+    s_container* container = (s_container*) malloc(sizeof(s_container));
+    /*Checando se a alocação ocorreu corretamente*/
+    if(!container){
+        printf("Alocação não foi feita! Memória esgotada!\n");
+        exit(1);
+    }
+
+    /*Aqui podemos colocar para passar o nome do escopo logo como parametro
+    * depois só linkar
+    */
+   
+    container->name = "tester";
+    return container;
 }
 
 
