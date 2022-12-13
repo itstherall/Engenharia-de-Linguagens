@@ -37,8 +37,8 @@ extern FILE * yyin, * yyout;
 
 %type <nodeValue> stm stmlist declaration main program subprograms subprogram
 %type <nodeValue> print print_strs str
-%type <nodeValue> args argumentos argumento atom tipo_inicial tipo id ids func_call pars parameters assign init_opt
-%type <nodeValue> assignment io while for if 
+%type <nodeValue> args argumentos argumento atom dimensions tipo_inicial tipo id ids func_call pars parameters assign init_opt ops_access
+%type <nodeValue> assignment io while for if elseif condition block return
 %type <nodeValue> exp exp_lv2 exp_lv3 exp_lv4 exp_lv5 exp_lv6 exp_lv7 exp_lv8
 
 %% /* Inicio da segunda seção, onde colocamos as regras BNF */
@@ -148,7 +148,7 @@ parameters : exp 						{ $$ = $1; }
 									 		}
 		   ;
 
-tipo_inicial : tipo					{$$ = $1;}
+tipo_inicial : tipo					{ $$ = $1; }
 		     | tipo dimensions		{
 												char* s = concat(2, $1, $2->target_code);
 											   freeNode($2);
@@ -167,15 +167,15 @@ a[10] = 4
 int a[10];
 a[3] = 2;
 a[3] + 1
+
+O array precisa ser apenas declarado numa linha, e em outra linha, iniciar os valores:
+tipo[] array;
+array = [args];
 */
-dimensions : DIMENSION						{  
-														$$ = createNode($1); 
-												  		free($1);
-													}
+dimensions : DIMENSION						{ $$ = createNode("[]"); }
            | DIMENSION dimensions		{
-														char* s = concat(2, $1, $2->target_code);
+														char* s = concat(2, "[]", $2->target_code);
 													   freeNode($2);
-													   free($1);
 													   $$ = createNode(s);
 													   free(s);
 													} 
@@ -194,13 +194,32 @@ stmlist : stm ';'				{
 										$$ = createNode(s);
 										free(s);
 									}
+		| while stmlist 		{
+										char* s = concat(3, $1->target_code, "\n", $2->target_code);
+				 					 	freeNode($1);
+										freeNode($2);
+										$$ = createNode(s);
+										free(s);
+									}
+		| for stmlist 			{
+										char* s = concat(3, $1->target_code, "\n", $2->target_code);
+				 					 	freeNode($1);
+										freeNode($2);
+										$$ = createNode(s);
+										free(s);
+									}
+		| if stmlist 			{
+										char* s = concat(3, $1->target_code, "\n", $2->target_code);
+				 					 	freeNode($1);
+										freeNode($2);
+										$$ = createNode(s);
+										free(s);
+									}
 	    ;
 
 stm : declaration 							{ $$ = $1; } // io (print), iterator (while, do, for), flowControl (if, switch)
 	| assignment								{ $$ = $1; } 
-	| while										{ $$ = $1; }
-	| for											{ $$ = $1; }
-	| if 											{ $$ = $1; }
+	| exp                               { $$ = $1; }
 	| block 										{ $$ = $1; }
 	| io 											{ $$ = $1; }
 	| return										{ $$ = $1; }
@@ -216,7 +235,7 @@ atom : ID						{  // TODO ao invés de colocar string do id, fazer um lookup na 
 									   free($1);
 									   $$ = createNode(s);
 									   free(s);
-									} 
+									}
 	 ;
 
 ops_access : '[' exp ']'					{
@@ -234,7 +253,7 @@ ops_access : '[' exp ']'					{
 													}
 		   ;
 
-		assignment : atom assign exp		{
+assignment : atom assign exp				{
 														char* s = concat(3, $1->target_code, $2->target_code, $3->target_code);
 					 								   freeNode($1);
 													   freeNode($2);
@@ -242,6 +261,15 @@ ops_access : '[' exp ']'					{
 													   $$ = createNode(s);
 													   free(s);
 													}
+				| atom assign '[' pars ']' {
+														char* s = concat(5, $1->target_code, $2->target_code, "[", $4->target_code, "]");
+													   freeNode($1);
+													   freeNode($2);
+													   freeNode($4);
+													   $$ = createNode(s);
+													   free(s);
+													}
+				; 
 
 declaration : 									{ $$ = createNode(""); }
 			| tipo_inicial ids				{
@@ -339,6 +367,13 @@ elseif : ELSE IF condition block BLOCK_ENDIF elseif	{
 																		   freeNode($3);
 																		   freeNode($4);
 																		   freeNode($6);
+																		   $$ = createNode(s);
+																		   free(s);
+																		}
+			| ELSE IF condition block BLOCK_ENDIF			{
+																			char* s = concat(5, "else if(", $3->target_code, "){\n", $4->target_code, "}");
+																		   freeNode($3);
+																		   freeNode($4);
 																		   $$ = createNode(s);
 																		   free(s);
 																		}
@@ -548,13 +583,14 @@ print : PRINT '(' print_strs ')'		{
 												}
       ;
 
-print_strs : str 				{ $$ = $1; }
-		   | str print_strs		{ char* s = concat(2, $1->target_code, $2->target_code);
-								  freeNode($1);
-								  freeNode($2);
-								  $$ = createNode(s);
-								  free(s);
-								}
+print_strs : str 					{ $$ = $1; }
+		   | str print_strs		{
+		   								char* s = concat(2, $1->target_code, $2->target_code);
+										  	freeNode($1);
+										  	freeNode($2);
+										  	$$ = createNode(s);
+										  	free(s);
+										}
 		   ;
 
 str : STRING_LITERAL		{ // remove aspas do fim

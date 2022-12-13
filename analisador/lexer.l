@@ -12,8 +12,8 @@ letterAndDigit  [a-zA-Z0-9]
 %%
 
 [ \s\t\n\r]           ;
-{digit}+|({digit}+.{digit}+)           	  {yylval.nValue = strtod(yytext, NULL); 
-                       return NUMBER_LITERAL;}
+{digit}+|[-]{digit}+|({digit}+.{digit}+)|[-]({digit}+.{digit}+)   {yylval.nValue = strtod(yytext, NULL); 
+                                                                    return NUMBER_LITERAL;}
 "true"                {yylval.sValue = strdup(yytext);
                         return(TRUE);}
 "false"               {yylval.sValue = strdup(yytext);
