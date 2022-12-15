@@ -45,9 +45,13 @@ void S_insert(char* key, t_symbol* binding);
 /* Veja o valor de key na tabela */
 t_symbol* S_lookup(char* key);
 
-/* remove um símbolo da tabela
+/* remove um símbolo da tabela e retorna posição do nó removido
  */
-void S_remove(char* key);
+t_container* S_remove(char* key);
+
+/* remove todos os símbolos definidos em um mesmo escopo da tabela
+ */
+void S_remove_all(char* scope);
 
 void printTable();
 

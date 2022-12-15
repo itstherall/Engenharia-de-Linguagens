@@ -4,12 +4,28 @@
  * fonte, avalia a expressão x^2 - y + c e imprime seu resultado na tela. 
  **/
 
+function computa(number n, number m, number r) : number {
+    return n + m + r;
+} end
+
 start () {
     number c = 1;
     number x = 4.5; 
     number y = 5.5;
 
-    number exp = x^2 - y + c;
+    number f = computa(1,2,3);
+
+    if(f < 0) {
+        number g = computa(1,1,1);
+
+        if(f < 0) {
+            number k = 1;
+        } endif
+        number k = 1;
+
+    } endif
+
+    number exp = x^2 - y + c + f;
 
     print("x^2 - y + c = " exp);
 
