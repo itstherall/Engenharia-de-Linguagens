@@ -13,7 +13,8 @@ table.c:
 	gcc /lib/table.c
 
 lex.yy.c: lexer.l
-	lex -d lexer.l
+	# lex -d lexer.l
+	lex lexer.l
 
 y.tab.c: parser.y  
 	yacc parser.y -d -v

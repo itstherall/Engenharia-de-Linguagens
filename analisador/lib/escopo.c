@@ -22,7 +22,7 @@ void create_scope_stack() {
 }
 
 
-s_container* create_container(){
+s_container* create_container(char* name){
     s_container* container = (s_container*) malloc(sizeof(s_container));
     /*Checando se a alocação ocorreu corretamente*/
     if(!container){
@@ -34,7 +34,7 @@ s_container* create_container(){
     * depois só linkar
     */
    
-    container->name = "tester";
+    container->name = name;
     return container;
 }
 
@@ -62,12 +62,15 @@ s_container* top(int index) {
 };
 
 void printEscope() {
-    printf("\n\n***** Imprimindo pilha de escopo *****\n\n");
+    printf("\n***** Imprimindo pilha de escopo *****\n");
 
     for(int i = 0; i < stack->size; i++) {
-        printf("posicao: %d escopo: %s", i, stack->scopes[i].name);
+        printf("posicao: %d escopo: %s\n", i, stack->scopes[i].name);
     }
-
-    printf("\n\n***** FIM pilha de escopo *****\n\n");
+    printf("tamanho: %d", stack->size);
+    printf("\n***** FIM pilha de escopo *****\n");
 }
 
+int block_id(){
+    return  (int) random() % 1000;
+}

@@ -29,11 +29,12 @@ typedef struct table_container
     struct table_container* next;
 } t_container;
 
+t_container* tabela; // lista ligada
+
+void create_table();
+
 /* construtor de containers */
-t_container* Container( char* key, void* binding, t_container *next);
-
-t_container *S_table = NULL; // lista ligada
-
+t_container* Container( char* key, void* binding, t_container* next);
 
 /* Entra key->symbol na tabela
  * key = subprograma ++ nome

@@ -1,5 +1,10 @@
 #include "table.h"
 
+void create_table() {
+    tabela = NULL;
+}
+
+
 t_container* Container( char* key, void* binding, t_container *next) {
     t_container *c = malloc(sizeof(*c)); // TODO checked malloc
     
@@ -11,12 +16,12 @@ t_container* Container( char* key, void* binding, t_container *next) {
 
 void S_insert(char* key, t_symbol* binding) {
     // insere no início da tabela
-    S_table = Container(key, binding, S_table);
+    tabela = Container(key, binding, tabela);
 }
 
 t_symbol* S_lookup(char* key) {
     
-    t_container* current = S_table;
+    t_container* current = tabela;
     while(current != NULL) {
         if(strcmp(key, current->key) == 0) {
             return current->binding;
@@ -28,14 +33,14 @@ t_symbol* S_lookup(char* key) {
 
 void S_remove(char* key) {
     
-    if(strcmp(key, S_table->key) == 0) {
-        t_container* removed = S_table;
-        S_table = S_table->next;
+    if(strcmp(key, tabela->key) == 0) {
+        t_container* removed = tabela;
+        tabela = tabela->next;
         free(removed);
     } else {
         
-        t_container* current = S_table->next;
-        t_container* prev = S_table;
+        t_container* current = tabela->next;
+        t_container* prev = tabela;
         while(current != NULL) {
             if(strcmp(key, current->key) == 0) {
                 t_container* removed = current;
@@ -50,13 +55,13 @@ void S_remove(char* key) {
 }
 
 void printTable() {
-    printf("\n\n***** Imprimindo tabela de símbolos *****\n\n");
+    printf("\n***** Imprimindo tabela de símbolos *****\n");
 
-    if(S_table == NULL) {
+    if(tabela == NULL) {
         printf("tabela vazia");
     } else {
 
-        t_container* current = S_table;
+        t_container* current = tabela;
         while(current != NULL) {
             printf("key: %s id: %s\n", current->key, current->binding->id);
             current = current->next;
@@ -64,7 +69,7 @@ void printTable() {
     
     }
 
-    printf("\n\n***** FIM tabela de símbolos *****\n\n");
+    printf("\n***** FIM tabela de símbolos *****\n");
 }
 
 // int main (int argc, char **argv) {

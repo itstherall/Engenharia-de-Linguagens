@@ -23,6 +23,8 @@ typedef struct scope_stack {
 /*GLOBAIS*/
 s_scope_stack* stack;
 
+char BUFFER_UTIL[256];
+
 /* escopo **
  * Escopo implementado como uma pilha única com uma função top especial
  */
@@ -39,5 +41,7 @@ s_container* pop();
 s_container* top(int index);
 
 void printEscope();
+
+int block_id();
 
 #endif

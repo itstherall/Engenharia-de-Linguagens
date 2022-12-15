@@ -1,5 +1,6 @@
 %{
 #include <stdio.h>
+#include <stdlib.h>
 #include <math.h>
 #include "lib/potrex.h"
 #include "lib/escopo.h"
@@ -40,19 +41,20 @@ extern FILE * yyin, * yyout;
 
 %type <nodeValue> stm stmlist declaration start program subprograms subprogram
 %type <nodeValue> print print_strs str
-%type <nodeValue> args argumentos argumento atom dimensions tipo_inicial tipo id ids func_call pars parameters assign init_opt ops_access
+%type <nodeValue> args argumentos argumento atom dimensions tipo_inicial tipo id ids proc_func_call pars parameters assign init_opt ops_access
 %type <nodeValue> assignment io while for if elseif condition block return
 %type <nodeValue> exp exp_lv2 exp_lv3 exp_lv4 exp_lv5 exp_lv6 exp_lv7 exp_lv8
 
 %% /* Inicio da segunda seção, onde colocamos as regras BNF */
 
 
-program : {create_scope_stack(); printEscope();} declaration subprograms start { 
+program : {create_scope_stack(); create_table(); printEscope();} declaration subprograms start { 
 																					fprintf(yyout, "%s\n%s\n%s\n", $2->target_code, $3->target_code, $4->target_code);
 																					freeNode($2);
 																					freeNode($3);
 																					freeNode($4);
 																					pop();
+																					printEscope();
 								   												}
 		;
 
@@ -68,18 +70,21 @@ subprograms : 						  	{
 										}
 			;
 
-start : START '(' ')' '{' stmlist '}' BLOCK_END	{
-													char * s = concat(3, "int main(){\n", $5->target_code, "return 0;\n}\n" );
-													freeNode($5);
+start : {push(create_container("start")); printEscope();} START '(' ')' '{' stmlist '}' BLOCK_END	{
+													char * s = concat(3, "int main(){\n", $6->target_code, "return 0;\n}\n" );
+													freeNode($6);
 													$$ = createNode(s);
 													free(s);
+													pop();
+													printEscope();
 												}
 
 /*
 * Funcao: function myFunc(int a, string b, bool c) : number {instrucoes} end
 * Procedimento: procedure myFunc(int a, string b, bool c) {instrucoes} end
+* 
 */
-subprogram  : FUNCTION ID '(' argumentos ')' ':' tipo '{' stmlist '}' BLOCK_END  
+subprogram  : FUNCTION ID  '(' argumentos ')' ':' tipo '{' stmlist '}' BLOCK_END  
 				{
 					char *s1 = concat(9, $7, " ", $2, " (", $4->target_code, ") ", "{\n", $9->target_code, "}\n");
 					free($7);
@@ -218,12 +223,13 @@ stmlist : stm ';'				{
 									}
 	    ;
 
-stm : declaration 							{ $$ = $1; } // io (print), iterator (while, do, for), flowControl (if, switch)
-	| assignment								{ $$ = $1; } 
+stm : declaration 						{ $$ = $1; } // io (print), iterator (while, do, for), flowControl (if, switch)
+	| assignment						{ $$ = $1; } 
 	| exp                               { $$ = $1; }
-	| block 										{ $$ = $1; }
-	| io 											{ $$ = $1; }
-	| return										{ $$ = $1; }
+	| block 							{ $$ = $1; }
+	| io 								{ $$ = $1; }
+	| proc_func_call					{ $$ = $1; }
+	| return							{ $$ = $1; }
 	;
 
 atom : ID						{  // TODO ao invés de colocar string do id, fazer um lookup na tabela de símbolos e pegar seu valor
@@ -329,7 +335,7 @@ assign : '='        			{ $$ = createNode("="); }
 	    ;
 
 while : WHILE condition block BLOCK_ENDWHILE	{
-																char* s = concat(5, "while (", $2->target_code, "){\n", $3->target_code, "}");
+															   char* s = concat(3, "while ", $2->target_code, $3->target_code);
 															   freeNode($2);
 															   freeNode($3);
 															   $$ = createNode(s);
@@ -338,7 +344,7 @@ while : WHILE condition block BLOCK_ENDWHILE	{
 	  ;
 
 for : FOR condition block BLOCK_ENDFOR 		{
-																char* s = concat(5, "for (", $2->target_code, "){\n", $3->target_code, "}");
+																char* s = concat(3, "for ", $2->target_code, $3->target_code);
 															   freeNode($2);
 															   freeNode($3);
 															   $$ = createNode(s);
@@ -347,14 +353,14 @@ for : FOR condition block BLOCK_ENDFOR 		{
     ;
 
 if : IF condition block BLOCK_ENDIF							{
-																			char* s = concat(5, "if(", $2->target_code, "){\n", $3->target_code, "}");
+																			char* s = concat(3, "if ", $2->target_code, $3->target_code);
 																		   freeNode($2);
 																		   freeNode($3);
 																		   $$ = createNode(s);
 																		   free(s);
 																		}
    | IF condition block BLOCK_ENDIF elseif 				{
-																			char* s = concat(6, "if(", $2->target_code, "){\n", $3->target_code, "} ", $5->target_code);
+																			char* s = concat(4, "if ", $2->target_code, $3->target_code, $5->target_code);
 																		   freeNode($2);
 																		   freeNode($3);
 																		   freeNode($5);
@@ -364,7 +370,7 @@ if : IF condition block BLOCK_ENDIF							{
    ;
 
 elseif : ELSE IF condition block BLOCK_ENDIF elseif	{
-																			char* s = concat(6, "else if(", $3->target_code, "){\n", $4->target_code, "} ", $6->target_code);
+																			char* s = concat(4, "else if ", $3->target_code, $4->target_code, $6->target_code);
 																		   freeNode($3);
 																		   freeNode($4);
 																		   freeNode($6);
@@ -372,25 +378,35 @@ elseif : ELSE IF condition block BLOCK_ENDIF elseif	{
 																		   free(s);
 																		}
 			| ELSE IF condition block BLOCK_ENDIF			{
-																			char* s = concat(5, "else if(", $3->target_code, "){\n", $4->target_code, "}");
+																			char* s = concat(3, "else if ", $3->target_code, $4->target_code);
 																		   freeNode($3);
 																		   freeNode($4);
 																		   $$ = createNode(s);
 																		   free(s);
 																		}
    	   | ELSE block BLOCK_ENDIF 							{
-																			char* s = concat(3, "else {\n", $2->target_code, "}");
+																			char* s = concat(2, "else ", $2->target_code);
 																		   freeNode($2);
 																		   $$ = createNode(s);
 																		   free(s);
 																		}
 	   ;
 
-block : '{' stmlist '}' 			{
-												char* s = concat(3, "{", $2->target_code, "}");
-											   freeNode($2);
-											   $$ = createNode(s);
-											   free(s);
+block : { 
+		 char* sname = (char*) calloc(10000, sizeof(char));
+		 sprintf(sname, "block@%d", block_id());
+		 push(create_container(sname)); printEscope();
+		} 
+		 '{' stmlist '}' 			
+											{	
+											    char* s = concat(3, "{\n", $3->target_code, "}");
+											    freeNode($3);
+											    $$ = createNode(s);
+											    free(s);
+
+												s_container* c = pop();
+												free(c->name);
+												printEscope();
 											}
 	  ;
 
@@ -545,13 +561,13 @@ exp_lv2 : '(' exp ')'				{
 												$$ = createNode(s);
 												free(s);
 											}
-		| func_call					{ $$ = $1; }
+		| proc_func_call					{ $$ = $1; }
 		| NUMBER_LITERAL 			{
-											char* str;
-										   str = malloc(sizeof(char) * 1000); 
-										   sprintf(str, "%lf", $1);
-										   $$ = createNode(str);
-										   free(str);
+										char* str;
+										str = malloc(sizeof(char) * 1000); 
+										sprintf(str, "%lf", $1);
+										$$ = createNode(str);
+										free(str);
 										}  // TODO STRING_LITERAL tambem cabe aqui? 
 		| TRUE						{ 
 											$$ = createNode($1);             // $$ = createNode("1")? C não tem true/false
@@ -564,12 +580,15 @@ exp_lv2 : '(' exp ')'				{
 		| atom						{ $$ = $1; } 
 		;
 
-func_call : ID '(' pars ')'		{
-												char* s = concat(4, $1, "(", $3->target_code, ")");
+proc_func_call : ID {{push(create_container($1)); printEscope();}} '(' pars ')'		
+											{
+											   char* s = concat(4, $1, "(", $4->target_code, ")");
 											   free($1);
-											   freeNode($3);
+											   freeNode($4);
 											   $$ = createNode(s);
 											   free(s);
+											   pop();
+											   printEscope();
 											} // TODO ao invés de colocar string do id, fazer um lookup na tabela de símbolos e pegar seu valor
 		  ;
 
@@ -605,7 +624,7 @@ str : STRING_LITERAL		{ // remove aspas do fim
 								   $$ = createNode($1 + 1);
 								   free($1);
 								}
-	| func_call				{ $$ = $1; }
+	| proc_func_call				{ $$ = $1; }
 	| NUMBER_LITERAL		{
 									char* str;
 								   str = malloc(sizeof(char) * 1000); 
@@ -619,7 +638,7 @@ str : STRING_LITERAL		{ // remove aspas do fim
 	; // TODO como manda computar uma expressão aqui no meio e imprimir o resultado?
 
 return : RETURN stm		{
-									char * s = concat(3, "return ", $2->target_code, ";");
+							char * s = concat(2, "return ", $2->target_code);
                    			freeNode($2);
                    			$$ = createNode(s);
                    			free(s);
