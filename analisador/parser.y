@@ -2,6 +2,8 @@
 #include <stdio.h>
 #include <math.h>
 #include "lib/potrex.h"
+#include "lib/escopo.h"
+#include "lib/table.h"
 
 int yylex(void);
 int yyerror(char *s);
@@ -16,7 +18,7 @@ extern FILE * yyin, * yyout;
 	double nValue; 	/* double value */
 	char   cValue; 	/* char value */
 	char * sValue;  /* string value */
-	struct node * nodeValue;  /* ??? */
+	struct node * nodeValue;  /* A node abstraction on parse three */
 	
 	};
 
@@ -36,7 +38,7 @@ extern FILE * yyin, * yyout;
 
 %start program
 
-%type <nodeValue> stm stmlist declaration main program subprograms subprogram
+%type <nodeValue> stm stmlist declaration start program subprograms subprogram
 %type <nodeValue> print print_strs str
 %type <nodeValue> args argumentos argumento atom dimensions tipo_inicial tipo id ids func_call pars parameters assign init_opt ops_access
 %type <nodeValue> assignment io while for if elseif condition block return
@@ -45,35 +47,33 @@ extern FILE * yyin, * yyout;
 %% /* Inicio da segunda seção, onde colocamos as regras BNF */
 
 
-//TODO: Fazer tudo ser double e tudo bem pela categoria que explica
-//TODO: Tabela de símbolos
-//TODO: Pilha de escopo (ideia é usar container a principio)
-//TODO: Preencher a tabela de símbolos
-
-program : {create_scope_stack();} declaration subprograms main { fprintf(yyout, "%s\n%s\n%s\n", $1->target_code, $2->target_code, $3->target_code);
-								   								 freeNode($1);
-                      			   								 freeNode($2);
-								   								 freeNode($3);
-																 pop();
-								   								}
+program : {create_scope_stack(); printEscope();} declaration subprograms start { 
+																					fprintf(yyout, "%s\n%s\n%s\n", $2->target_code, $3->target_code, $4->target_code);
+																					freeNode($2);
+																					freeNode($3);
+																					freeNode($4);
+																					pop();
+								   												}
 		;
 
-subprograms : 						  		{ $$ = createNode(""); }
+subprograms : 						  	{ 
+											$$ = createNode(""); 
+										}
 			| subprogram subprograms  	{
-													char *s = concat(3, $1->target_code, "\n", $2->target_code);
+										   char *s = concat(3, $1->target_code, "\n", $2->target_code);
 	                             		   freeNode($1);
 	                             		   freeNode($2);
 	                             		   $$ = createNode(s);
 	                             		   free(s);
-									  			}
+										}
 			;
 
-main : START '(' ')' '{' stmlist '}' BLOCK_END 	{
-																	char * s = concat(3, "int main(){\n", $5->target_code, "return 0;\n}\n" );
-	                                                freeNode($5);
-	                                                $$ = createNode(s);
-	                                                free(s);
-																}
+start : START '(' ')' '{' stmlist '}' BLOCK_END	{
+													char * s = concat(3, "int main(){\n", $5->target_code, "return 0;\n}\n" );
+													freeNode($5);
+													$$ = createNode(s);
+													free(s);
+												}
 
 /*
 * Funcao: function myFunc(int a, string b, bool c) : number {instrucoes} end

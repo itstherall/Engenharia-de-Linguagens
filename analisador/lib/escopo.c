@@ -60,3 +60,14 @@ s_container* top(int index) {
         exit(1);
     }
 };
+
+void printEscope() {
+    printf("\n\n***** Imprimindo pilha de escopo *****\n\n");
+
+    for(int i = 0; i < stack->size; i++) {
+        printf("posicao: %d escopo: %s", i, stack->scopes[i].name);
+    }
+
+    printf("\n\n***** FIM pilha de escopo *****\n\n");
+}
+

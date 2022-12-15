@@ -38,4 +38,6 @@ s_container* pop();
 /* */
 s_container* top(int index);
 
+void printEscope();
+
 #endif
