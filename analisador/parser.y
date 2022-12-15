@@ -86,8 +86,8 @@ start : {push(create_container("start")); printEscope();} START '(' ')' '{' stml
 */
 subprogram  : FUNCTION ID  '(' argumentos ')' ':' tipo '{' stmlist '}' BLOCK_END  
 				{
-					char *s1 = concat(9, $7, " ", $2, " (", $4->target_code, ") ", "{\n", $9->target_code, "}\n");
-					free($7);
+					char *s1 = concat(9, $7->target_code, " ", $2, " (", $4->target_code, ") ", "{\n", $9->target_code, "}\n");
+					freeNode($7);
 					free($2);
 					freeNode($4);
 					freeNode($9);
@@ -131,10 +131,17 @@ args : argumento 						{ $$ = $1; }
 											}
 	 ;
 
-argumento : tipo_inicial ID  		{
-												char* s = concat(3, $1->target_code, " ", $2);
+argumento : tipo ID						{ char* s = concat(3, $1->target_code, " ", $2);
 												freeNode($1);
 												free($2);
+												$$ = createNode(s);
+												free(s);
+										}
+		  | tipo dimensions ID  		{
+												char* s = concat(4, $1->target_code, " ", $3, $2->target_code);
+												freeNode($1);
+												freeNode($2);
+												free($3);
 												$$ = createNode(s);
 												free(s);
 											}
@@ -145,7 +152,7 @@ pars :									{ $$ = createNode(""); }
 	 ;
 
 parameters : exp 						{ $$ = $1; }
-		   | parameters ',' exp 	{
+		   | exp ',' parameters  	{
 		   									char* s = concat(3, $1->target_code, ", ", $3->target_code);
 												freeNode($1);
 												freeNode($3);
@@ -156,12 +163,12 @@ parameters : exp 						{ $$ = $1; }
 
 tipo_inicial : tipo					{ $$ = $1; }
 		     | tipo dimensions		{
-												char* s = concat(2, $1, $2->target_code);
-											   freeNode($2);
-											   free($1);
-											   $$ = createNode(s);
-											   free(s);
-											} 
+										char* s = concat(2, $1->target_code, $2->target_code);
+										freeNode($2);
+										free($1);
+										$$ = createNode(s);
+										free(s);
+									} 
 		     ;
 
 //essa regra estaria certa par adimension?
@@ -228,7 +235,6 @@ stm : declaration 						{ $$ = $1; } // io (print), iterator (while, do, for), f
 	| exp                               { $$ = $1; }
 	| block 							{ $$ = $1; }
 	| io 								{ $$ = $1; }
-	| proc_func_call					{ $$ = $1; }
 	| return							{ $$ = $1; }
 	;
 
@@ -297,23 +303,23 @@ declaration : 									{ $$ = createNode(""); }
 * a = b;
 */
 
-ids :  id	               { $$ = $1; }
+ids :  id	               		{ $$ = $1; }
 	|  id ',' ids	 			{
-										char* s = concat(3, $1, ", ", $3);
-									   free($1);
-									   free($3);
-									   $$ = createNode(s);
-									   free(s);
-									}
+									char* s = concat(3, $1, ", ", $3);
+									free($1);
+									free($3);
+									$$ = createNode(s);
+									free(s);
+								}
 	;
 
 id  : ID init_opt				{
-										char* s = concat(2, $1, $2->target_code);
-									   free($1);
-									   freeNode($2);
-									   $$ = createNode(s);
-									   free(s);
-									}
+									char* s = concat(2, $1, $2->target_code);
+									free($1);
+									freeNode($2);
+									$$ = createNode(s);
+									free(s);
+								}
 	;
 
 init_opt : 			  			{ $$ = createNode(""); }
@@ -657,6 +663,9 @@ int main (int argc, char ** argv) {
     
     yyin = fopen(argv[1], "r");
     yyout = fopen(argv[2], "w");
+
+	char* incl = "#include <stdio.h>\n#include <math.h>\n #include <stdlib.h>\n ";
+	fprintf(yyout, "%s", incl);
 
     codigo = yyparse();
 

@@ -4,16 +4,16 @@
  * fonte, avalia a expressão x^2 - y + c e imprime seu resultado na tela. 
  **/
 
-function computa(number n, number m, number r) : number {
+<!-- function computa(number n, number m, number r) : number {
     return n + m + r;
-} end
+} end -->
 
 start () {
     number c = 1;
     number x = 4.5; 
     number y = 5.5;
 
-    number f = computa(1,2,3);
+    <!-- number f = computa(1,2,3);
 
     if(f < 0) {
         number g = computa(1,1,1);
@@ -23,7 +23,7 @@ start () {
         } endif
         number k = 1;
 
-    } endif
+    } endif -->
 
     number exp = x^2 - y + c + f;
 
