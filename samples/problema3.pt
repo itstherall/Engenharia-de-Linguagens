@@ -30,29 +30,39 @@ procedure myFunc() {
     /**
     * Recebendo valores
     */
-    for(number i = 0; i < linhaMatriz1; i ++){
+    number i = 0;
+    number j = 0;
+    while(i < linhaMatriz1){
        
-        for(number j = 0; j < colunaMatriz1; j ++){
+        while(j < colunaMatriz1){
             print("digite um valor para o elemento " i j " da matriz 1: ");
             
             number n;
-            scan(n);
+            read(number n);
             matriz1[i][j] = n;
 
-        } endfor
-    } endfor
+            j += 1;
+        } endwhile
 
-    for(number i = 0; i < linhaMatriz2; i ++){
+        i += 1;
+    } endwhile
 
-        for(number j = 0; j < colunaMatriz2; j ++){
+    i = 0;
+    j = 0;
+    while(i < linhaMatriz2){
+
+        while(j < colunaMatriz2){
             print("digite um valor para o elemento " i j " da matriz 2: ");
             
             number n;
             scan(n);
             matriz2[i][j] = n;
-        } endfor
 
-    } endfor
+            j += 1;
+        } endwhile
+
+        i += 1;
+    } endwhile
 
     /**
      * Efetuando soma
@@ -64,19 +74,28 @@ procedure myFunc() {
         */
         number resultadoSoma[linhaMatriz1][colunaMatriz2];
 
-        for(number i = 0; i < linhaMatriz1; i ++){
 
-            for(number j = 0; j < colunaMatriz2; j ++){
+        i = 0;
+        j = 0;
+        while(i < linhaMatriz1){
+
+            while(j < colunaMatriz2){
                 resultadoSoma[i][j] = matriz1[i][j] + matriz2[i][j];
-            } endfor
 
-        } endfor
+                j += 1;
+            } endwhile
+        
+            i += 1;
+        } endwhile
 
        /**
         * Mostrando resultado
         */
-        for(number i = 0; i < linhaMatriz2; i ++){
-            for(number j = 0; j < colunaMatriz2; j ++){
+
+        i = 0; 
+        j = 0;
+        while(i < linhaMatriz2){
+            while(j < colunaMatriz2){
                 
                if (i == 0 and j == 0) {
                     print("[");
@@ -96,8 +115,11 @@ procedure myFunc() {
                     print("]");
                } endif
                
-            } endfor
-        } endfor
+               j += 1;
+            } endwhile
+
+            1 += 1;
+        } endwhile
 
     } endif else {
         print("Não é possível somar matrizes de ordens diferentes.");
@@ -108,18 +130,19 @@ procedure myFunc() {
 
         number resultadoMultiplicacao[linhaMatriz1][colunaMatriz2];
 
-        for (number i = 0; i < linhaMatriz1; i ++) {
-            for (number j = 0; j < colunaMatriz2; j ++) {
-                for (number k = 0; k < colunaMatriz1; k ++) {
-      endif             } endfor
-            } endfor
-        } endfor
+        while (number i = 0; i < linhaMatriz1; i ++) {
+            while (number j = 0; j < colunaMatriz2; j ++) {
+                while (number k = 0; k < colunaMatriz1; k ++) {
+                    resultadoMultiplicacao[i][j] += (first[i][k] * second[k][j]);
+                   } endwhile
+            } endwhile
+        } endwhile
 
        /**
         * Mostrando resultado
         */
-        for(number i = 0; i<linhaMatriz1; i ++){
-            for(number j = 0; j<colunaMatriz2; j ++){
+        while(number i = 0; i<linhaMatriz1; i ++){
+            while(number j = 0; j<colunaMatriz2; j ++){
                if (i == 0 and j == 0) {
                     print("[");
                } endif
@@ -138,8 +161,8 @@ procedure myFunc() {
                     print("]");
                } endif
                
-            } endfor
-        } endfor
+            } endwhile
+        } endwhile
 
     } 
     else {

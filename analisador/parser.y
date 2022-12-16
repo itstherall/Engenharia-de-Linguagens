@@ -32,7 +32,7 @@ extern FILE * yyin, * yyout;
 %token PRINT SCAN READ
 %token DIMENSION
 %token <sValue> NUMBER STRING BOOL CONTAINER TRUE FALSE
-%token AND OR NOT
+%token AND OR NOT NIL
 %token OP_GEQ OP_LEQ OP_EQ OP_NEQ
 %token OP_INCREMENT OP_DECREMENT
 %token <sValue> SUM_ASSIGN DIFFERENCE_ASSIGN PRODUCT_ASSIGN QUOTIENT_ASSIGN REMAINDER_ASSIGN
@@ -394,6 +394,13 @@ init_opt : 			  			{ $$ = createNode(""); }
 									$$ = createNode(s);
 									free(s);
 								}
+		 | assign '{' pars '}'	{
+									char* s = concat(4, $1->target_code, " {", $3->target_code, "}");
+									freeNode($1);
+									freeNode($3);
+									$$ = createNode(s);
+									free(s);
+								}
 		;
 
 assign : '='        			{ $$ = createNode("="); }
@@ -414,8 +421,8 @@ container_decl : CONTAINER ID '{' container_decls '}' 	{
 		  ;
 
 container_decls : declaration                        	{ $$ = $1; }
-				| declaration ',' container_decls		{
-															char* s = concat(3, $1->target_code, ",\n", $3->target_code);
+				| declaration ';' container_decls		{
+															char* s = concat(3, $1->target_code, ";\n", $3->target_code);
 															freeNode($1);
 															freeNode($3);
 															$$ = createNode(s);
@@ -536,7 +543,7 @@ exp : exp_lv8 OR exp 				{
 	;
 
 exp_lv8 : exp_lv7 AND exp_lv8 	{
-												char* s = concat(3, $1->target_code, " && ", $3->target_code);
+											   char* s = concat(3, $1->target_code, " && ", $3->target_code);
 											   freeNode($1);
 											   freeNode($3);
 											   $$ = createNode(s);
@@ -678,12 +685,13 @@ exp_lv2 : '(' exp ')'				{
 									}  // TODO STRING_LITERAL tambem cabe aqui? 
 		| TRUE						{ 
 										$$ = createNode("1");             // $$ = createNode("1")? C não tem true/false
-										free($1); // TODO PRECISA DAR FREE
+										free($1);
 									}
 	 	| FALSE						{ 
 										$$ = createNode("0");             // $$ = createNode("0")? C não tem true/false
 										free($1);
 									}
+		| NIL						{ $$ = createNode("NULL"); }
 		| atom						{ $$ = $1; } 
 		;
 

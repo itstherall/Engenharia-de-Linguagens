@@ -50,11 +50,13 @@ function mmc(number a, number b): number {
  * Lançamento de exceção? Ou retorna um rationalT inválido, sla?
 **/
 function createRat(number a, number b): container rationalT {
-    if (b != 0) {
+    if (b =/= 0) {
         container rationalT rat = {a, b};
-	return rat;
+	    return rat;
     } endif else {
-        error("Divisão por zero");
+        print("Divisão por zero");
+        container rationalT indivisivel = {-1, -1};
+        return indivisivel;
     } endif 
 } end
 
@@ -63,22 +65,22 @@ function createRat(number a, number b): container rationalT {
  * Alguma alteração na forma de acesso aos atributos?
 **/
 function equalsRat(container rationalT a, container rationalT b): boolean {
-    return a.numerador/a.denominador == b.numerador/b.denominador;
+    return a.numerador / a.denominador == b.numerador / b.denominador;
 } end
 
 
 function addRat(container rationalT a, container rationalT b): container rationalT {
     number denominador = mmc(a.denominador, b.denominador);
-
-    container rationalT rat = {mmc/a.denominador * a.numerador + mmc/b.denominador * b.numerador, mmc}; 
+    
+    container rationalT rat = {((denominador / a.denominador) * a.numerador) + ((denominador/b.denominador) * b.numerador), denominador}; 
     return rat;
 } end
 
 
 function subtractRat(container rationalT a, container rationalT b): container rationalT {
     number denominador = mmc(a.denominador, b.denominador);
-
-    container rationalT rat = {mmc/a.denominador * a.numerador - mmc/b.denominador * b.numerador, mmc}; 
+    
+    container rationalT rat = {((denominador / a.denominador) * a.numerador) - ((denominador/b.denominador) * b.numerador), denominador}; 
     return rat;
 } end
 
@@ -107,8 +109,12 @@ start () {
     container rationalT t1 = createRat(a, b);
     print("Criacao do rationalT com os numeros ", number a);
     print(" e ", number b);
-    print(": ", t1.numerador);
-    print("/", t1.denominador);
+
+    number num = t1.numerador;
+    print(": ", number num);
+
+    number den = t1.denominador;
+    print("/", number den);
     print("\n");
 
     container rationalT t2 = createRat(b, a);
@@ -117,6 +123,7 @@ start () {
     print("/", number b);
     print(" e ", number a);
     print("/", number b);
+    
     boolean test = equalsRat(t1, t1);
     print(": ", boolean test);
     print("\n");
@@ -124,53 +131,73 @@ start () {
     print("/", number b);
     print(" e ", number b);
     print("/", number a);
+    
     test = equalsRat(t1, t2);
     print(": ", boolean test);
     print("\n");
 
     print("Testes de operações:\n");
+    // Soma
     print("Somar ", number a);
     print("/", number b);
     print(" e ", number b);
     print("/", number a);
     container rationalT result = addRat(t1, t2);
-    print(": ", number result.numerador);
-    print("/", number result.denominador);
+    
+    number r1 = result.numerador;
+    number r2 = result.denominador;
+    print(": ", number r1);
+    print("/", number r2);
     print("\n");
 
+    // Subtração
     print("Subtrair ", number b);
     print("/", number a);
     print(" e ", number a);
     print("/", number b);
+    
     result = subtractRat(t2, t1);
-    print(": ", number result.numerador);
-    print("/", number result.denominador);
+    r1 = result.numerador;
+    r2 = result.denominador;
+    print(": ", number r1);
+    print("/", number r2);
     print("\n");
 
+    // Multiplicação
     print("Multiplicar ", number a);
     print("/", number b);
     print(" e ", number b);
     print("/", number a);
+    
     result = multiplyRat(t1, t2);
-    print(": ", number result.numerador);
-    print("/", number result.denominador);
+    r1 = result.numerador;
+    r2 = result.denominador;
+    print(": ", number r1);
+    print("/", number r2);
     print("\n");
 
+    // Divisão
     print("Dividir ", number a);
     print("/", number b);
     print(" e ", number b);
     print("/", number a);
+    
     result = divideRat(t1, t2);
-    print(": ", number result.numerador);
-    print("/", number result.denominador);
+    r1 = result.numerador;
+    r2 = result.denominador;
+    print(": ", number r1);
+    print("/", number r2);
     print("\n");
 
+    // Inversão
     print("Inverso de ", number a);
     print("/", number b);
-    
+
     result = inverseRat(t1);
-    print(": ", number result.numerador);
-    print("/", number result.denominador);
+    r1 = result.numerador;
+    r2 = result.denominador;
+    print(": ", number r1);
+    print("/", number r2);
     print("\n");
     
 } end
