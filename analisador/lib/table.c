@@ -1,5 +1,7 @@
 #include "table.h"
 
+t_container* tabela; // lista ligada
+
 void create_table() {
     tabela = NULL;
 }

@@ -29,7 +29,7 @@ extern FILE * yyin, * yyout;
 %token WHILE BLOCK_ENDWHILE FOR BLOCK_ENDFOR DO BLOCK_ENDDO BLOCK_END
 %token IF BLOCK_ENDIF THEN ELSE
 %token START FUNCTION PROCEDURE RETURN
-%token PRINT
+%token PRINT SCAN
 %token DIMENSION
 %token <sValue> NUMBER STRING BOOL MAP TRUE FALSE
 %token AND OR NOT
@@ -40,21 +40,21 @@ extern FILE * yyin, * yyout;
 %start program
 
 %type <nodeValue> stm stmlist declaration start program subprograms subprogram
-%type <nodeValue> print print_strs str
-%type <nodeValue> args argumentos argumento atom dimensions tipo_inicial tipo id ids proc_func_call pars parameters assign init_opt ops_access
-%type <nodeValue> assignment io while for if elseif condition block return
+%type <nodeValue> print print_strs str scan
+%type <nodeValue> args argumentos argumento atom dimensions /*tipo_inicial*/ tipo id ids proc_func_call pars parameters assign init_opt op_access ops_access
+%type <nodeValue> assignment io escope while for if elseif condition block return
 %type <nodeValue> exp exp_lv2 exp_lv3 exp_lv4 exp_lv5 exp_lv6 exp_lv7 exp_lv8
 
 %% /* Inicio da segunda seção, onde colocamos as regras BNF */
 
 
-program : {create_scope_stack(); create_table(); printEscope();} declaration subprograms start { 
+program : {create_scope_stack(); create_table(); } declaration subprograms start { 
 																					fprintf(yyout, "%s\n%s\n%s\n", $2->target_code, $3->target_code, $4->target_code);
 																					freeNode($2);
 																					freeNode($3);
 																					freeNode($4);
 																					pop();
-																					printEscope();
+																					//printEscope();
 								   												}
 		;
 
@@ -70,13 +70,13 @@ subprograms : 						  	{
 										}
 			;
 
-start : {push(create_container("start")); printEscope();} START '(' ')' '{' stmlist '}' BLOCK_END	{
+start : {push(create_container("start")); } START '(' ')' '{' stmlist '}' BLOCK_END	{
 													char * s = concat(3, "int main(){\n", $6->target_code, "return 0;\n}\n" );
 													freeNode($6);
 													$$ = createNode(s);
 													free(s);
 													pop();
-													printEscope();
+													//printEscope();
 												}
 
 /*
@@ -161,7 +161,7 @@ parameters : exp 						{ $$ = $1; }
 									 		}
 		   ;
 
-tipo_inicial : tipo					{ $$ = $1; }
+/*tipo_inicial : tipo					{ $$ = $1; }
 		     | tipo dimensions		{
 										char* s = concat(2, $1->target_code, $2->target_code);
 										freeNode($2);
@@ -195,33 +195,25 @@ dimensions : DIMENSION						{ $$ = createNode("[]"); }
 		     ;
 
 stmlist : stm ';'				{
-										char* s = concat(2, $1->target_code, ";\n");
+									char* s = concat(2, $1->target_code, ";\n");
+									freeNode($1);
+									$$ = createNode(s);
+									free(s);
+								}
+		| stm ';' stmlist 		{
+									char* s = concat(3, $1->target_code, ";\n", $3->target_code);
+									freeNode($1);
+									freeNode($3);
+									$$ = createNode(s);
+									free(s);
+								}
+		| escope					{
+										char* s = concat(2, $1->target_code, "\n");
 										freeNode($1);
 										$$ = createNode(s);
 										free(s);
 									}
-		| stm ';' stmlist 	{
-										char* s = concat(3, $1->target_code, ";\n", $3->target_code);
-				 					 	freeNode($1);
-										freeNode($3);
-										$$ = createNode(s);
-										free(s);
-									}
-		| while stmlist 		{
-										char* s = concat(3, $1->target_code, "\n", $2->target_code);
-				 					 	freeNode($1);
-										freeNode($2);
-										$$ = createNode(s);
-										free(s);
-									}
-		| for stmlist 			{
-										char* s = concat(3, $1->target_code, "\n", $2->target_code);
-				 					 	freeNode($1);
-										freeNode($2);
-										$$ = createNode(s);
-										free(s);
-									}
-		| if stmlist 			{
+		| escope stmlist 		{
 										char* s = concat(3, $1->target_code, "\n", $2->target_code);
 				 					 	freeNode($1);
 										freeNode($2);
@@ -238,6 +230,11 @@ stm : declaration 						{ $$ = $1; } // io (print), iterator (while, do, for), f
 	| return							{ $$ = $1; }
 	;
 
+escope : while             		{ $$ = $1; }
+	   | for 					{ $$ = $1; }
+	   | if  					{ $$ = $1; }
+	   ;
+
 atom : ID						{  // TODO ao invés de colocar string do id, fazer um lookup na tabela de símbolos e pegar seu valor
 										$$ = createNode($1); 
 								  		free($1);
@@ -251,20 +248,23 @@ atom : ID						{  // TODO ao invés de colocar string do id, fazer um lookup na 
 									}
 	 ;
 
-ops_access : '[' exp ']'					{
-														char* s = concat(3, "[", $2->target_code, "]");
-													   freeNode($2);
-													   $$ = createNode(s);
-													   free(s);
-													}
-		   | '[' exp ']' ops_access		{
-														char* s = concat(4, "[", $2->target_code, "]", $4->target_code);
-													   freeNode($2);
-													   freeNode($4);
-													   $$ = createNode(s);
-													   free(s);
-													}
+ops_access : op_access					{ $$ = $1; }
+		   | op_access ops_access		{
+											char* s = concat(2, $1->target_code, $2->target_code);
+											freeNode($1);
+											freeNode($2);
+											$$ = createNode(s);
+											free(s);
+										}
 		   ;
+
+op_access : '[' exp ']'			{
+								 char* s = concat(3, "[(int) lround(", $2->target_code, ")]");
+								 freeNode($2);
+								 $$ = createNode(s);
+								 free(s);
+								}
+		  ;
 
 assignment : atom assign exp				{
 														char* s = concat(3, $1->target_code, $2->target_code, $3->target_code);
@@ -284,14 +284,22 @@ assignment : atom assign exp				{
 													}
 				; 
 
-declaration : 									{ $$ = createNode(""); }
-			| tipo_inicial ids				{
-														char* s = concat(3, $1->target_code, " ", $2->target_code);
-													   freeNode($1);
-													   freeNode($2);
-													   $$ = createNode(s);
-													   free(s);
-													}
+declaration : 								{ $$ = createNode(""); }
+			| tipo ids						{
+												char* s = concat(3, $1->target_code, " ", $2->target_code);
+												freeNode($1);
+												freeNode($2);
+												$$ = createNode(s);
+												free(s);
+											}
+			| tipo dimensions ids			{
+												char* s = concat(3, $1->target_code, " ", $3->target_code);
+												freeNode($1);
+												freeNode($2);
+												freeNode($3);
+												$$ = createNode(s);
+												free(s);
+											}
 			;
 
 /** op 1, 2, 3 e 4 de declaração e inicialização 
@@ -299,13 +307,14 @@ declaration : 									{ $$ = createNode(""); }
 * 2. type a, b, c;
 * 3. type a = 10;
 * 4. type a = 1, b = 2, c = 3;
-* 5. int[] a = {2,3}; //todo
+* 5. int[] a = [2,3];
+* 6. 
 * a = b;
 */
 
 ids :  id	               		{ $$ = $1; }
 	|  id ',' ids	 			{
-									char* s = concat(3, $1, ", ", $3);
+									char* s = concat(3, $1->target_code, ", ", $3->target_code);
 									free($1);
 									free($3);
 									$$ = createNode(s);
@@ -324,13 +333,20 @@ id  : ID init_opt				{
 
 init_opt : 			  			{ $$ = createNode(""); }
 		 | assign exp 			{
-		 								char* s = concat(4, " ", $1->target_code, " ", $2->target_code);
-										freeNode($1);
-										freeNode($2);
-										$$ = createNode(s);
-										free(s);
+									char* s = concat(4, " ", $1->target_code, " ", $2->target_code);
+									freeNode($1);
+									freeNode($2);
+									$$ = createNode(s);
+									free(s);
 		 			   			}
-		 ;
+		 | assign '[' pars ']'	{
+									char* s = concat(5, "[] ", $1->target_code, " {", $3->target_code, "}");
+									freeNode($1);
+									freeNode($3);
+									$$ = createNode(s);
+									free(s);
+								}
+		;
 
 assign : '='        			{ $$ = createNode("="); }
 	    | SUM_ASSIGN			{ $$ = createNode($1); free($1); }
@@ -401,7 +417,7 @@ elseif : ELSE IF condition block BLOCK_ENDIF elseif	{
 block : { 
 		 char* sname = (char*) calloc(10000, sizeof(char));
 		 sprintf(sname, "block@%d", block_id());
-		 push(create_container(sname)); printEscope();
+		 push(create_container(sname)); //printEscope();
 		} 
 		 '{' stmlist '}' 			
 											{	
@@ -412,7 +428,7 @@ block : {
 
 												s_container* c = pop();
 												free(c->name);
-												printEscope();
+												//printEscope();
 											}
 	  ;
 
@@ -586,7 +602,7 @@ exp_lv2 : '(' exp ')'				{
 		| atom						{ $$ = $1; } 
 		;
 
-proc_func_call : ID {{push(create_container($1)); printEscope();}} '(' pars ')'		
+proc_func_call : ID {push(create_container($1)); } '(' pars ')'		
 											{
 											   char* s = concat(4, $1, "(", $4->target_code, ")");
 											   free($1);
@@ -594,12 +610,27 @@ proc_func_call : ID {{push(create_container($1)); printEscope();}} '(' pars ')'
 											   $$ = createNode(s);
 											   free(s);
 											   pop();
-											   printEscope();
+											   //printEscope();
 											} // TODO ao invés de colocar string do id, fazer um lookup na tabela de símbolos e pegar seu valor
 		  ;
 
 io : print		{ $$ = $1; } // TODO open, close, printToFile ???
+	| scan      { $$ = $1; }
    ;
+
+// C: scanf("%lf", &id);
+// Potrex: scan(id);
+// C simplificado: 
+// scanf("%d", &v); 
+scan: SCAN '(' ID ')' { 
+								char* s = concat(4, "scanf("\" %lf "\", &" $3->target_code ")"); // TODO pegar o tipo do valor no scanf
+								freeNode($3);
+								$$ = createNode(s);
+								free(s);
+							}
+	;
+		
+	
 
 print : PRINT '(' print_strs ')'		{
 													char* s = concat(3, "printf(\"", $3->target_code, "\")");
@@ -609,14 +640,14 @@ print : PRINT '(' print_strs ')'		{
 												}
       ;
 
-print_strs : str 					{ $$ = $1; }
+print_strs : str 				{ $$ = $1; }
 		   | str print_strs		{
-		   								char* s = concat(2, $1->target_code, $2->target_code);
-										  	freeNode($1);
-										  	freeNode($2);
-										  	$$ = createNode(s);
-										  	free(s);
-										}
+									char* s = concat(2, $1->target_code, $2->target_code);
+									freeNode($1);
+									freeNode($2);
+									$$ = createNode(s);
+									free(s);
+								}
 		   ;
 
 str : STRING_LITERAL		{ // remove aspas do fim
@@ -632,7 +663,7 @@ str : STRING_LITERAL		{ // remove aspas do fim
 								}
 	| proc_func_call				{ $$ = $1; }
 	| NUMBER_LITERAL		{
-									char* str;
+								   char* str;
 								   str = malloc(sizeof(char) * 1000); 
 								   sprintf(str, "%lf", $1);
 								   $$ = createNode(str);

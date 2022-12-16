@@ -11,33 +11,48 @@ procedure myFunc() {
     number linhaMatriz2 = 0;
     number colunaMatriz2 = 0;
 
-    linhaMatriz1 = numberScan();
-    colunaMatriz1 = numberScan();
+    print("digite o numero de linhas da matriz1: ");
+    scan(linhaMatriz1);
 
-    linhaMatriz2 = numberScan();
-    colunaMatriz2 = numberScan();
+    print("digite o numero de colunas da matriz1: ");
+    scan(colunaMatriz1);
+    
+    print("digite o numero de linhas da matriz2: ");
+    scan(linhaMatriz1);
 
-    number matriz1[linhaMatriz1][colunaMatriz1];
-    number matriz2[linhaMatriz2][colunaMatriz2];
+    print("digite o numero de colunas da matriz2: ");
+    scan(colunaMatriz1);
+    
+
+    number[linhaMatriz1][colunaMatriz1] matriz1;
+    number[linhaMatriz2][colunaMatriz2] matriz2;
 
     /**
     * Recebendo valores
     */
-    for(number i = 0; i<linhaMatriz1; i++){
+    for(number i = 0; i < linhaMatriz1; i ++){
+       
+        for(number j = 0; j < colunaMatriz1; j ++){
+            print("digite um valor para o elemento " i j " da matriz 1: ");
+            
+            number n;
+            scan(n);
+            matriz1[i][j] = n;
 
-        for(number j = 0; j<colunaMatriz1; j++){
-                
-            matriz1[i][j] = numberScan();
-        }
-    }
+        } endfor
+    } endfor
 
-    for(number i = 0; i<linhaMatriz2; i++){
+    for(number i = 0; i < linhaMatriz2; i ++){
 
-        for(number j = 0; j<colunaMatriz2; j++){
-                
-            matriz2[i][j] = numberScan();
-        }
-    }
+        for(number j = 0; j < colunaMatriz2; j ++){
+            print("digite um valor para o elemento " i j " da matriz 2: ");
+            
+            number n;
+            scan(n);
+            matriz2[i][j] = n;
+        } endfor
+
+    } endfor
 
     /**
      * Efetuando soma
@@ -49,28 +64,42 @@ procedure myFunc() {
         */
         number resultadoSoma[linhaMatriz1][colunaMatriz2];
 
-        for(number i = 0; i<linhaMatriz1; i++){
+        for(number i = 0; i < linhaMatriz1; i ++){
 
-            for(number j = 0; j<colunaMatriz2; j++){
-                
+            for(number j = 0; j < colunaMatriz2; j ++){
                 resultadoSoma[i][j] = matriz1[i][j] + matriz2[i][j];
-            }
-        }
+            } endfor
+
+        } endfor
 
        /**
         * Mostrando resultado
         */
-        for(number i = 0; i<linhaMatriz2; i++){
-
-            for(number j = 0; j<colunaMatriz2; j++){
+        for(number i = 0; i < linhaMatriz2; i ++){
+            for(number j = 0; j < colunaMatriz2; j ++){
                 
+               if (i == 0 and j == 0) {
+                    print("[");
+               } endif
+
+               if (j == 0) {
+                    print("[");
+               } endif
+               
                print(resultadoSoma[i][j]);
-            }
-        }
 
+               if (j == colunaMatriz2 - 1) {
+                    print("]");
+               } endif
 
-    } endif
-    else {
+               if (i == linhaMatriz2 - 1 and j == colunaMatriz2 - 1) {
+                    print("]");
+               } endif
+               
+            } endfor
+        } endfor
+
+    } endif else {
         print("Não é possível somar matrizes de ordens diferentes.");
     } endif
 
@@ -79,31 +108,47 @@ procedure myFunc() {
 
         number resultadoMultiplicacao[linhaMatriz1][colunaMatriz2];
 
-        for (number i = 0; i < linhaMatriz1; ++i) {
-
-            for (number j = 0; j < colunaMatriz2; ++j) {
-
-                for (number k = 0; k < colunaMatriz1; ++k) {
-                    resultadoMultiplicacao[i][j] = (first[i][k] * second[k][j]) + result[i][j];
-                }
-            }
-        }
+        for (number i = 0; i < linhaMatriz1; i ++) {
+            for (number j = 0; j < colunaMatriz2; j ++) {
+                for (number k = 0; k < colunaMatriz1; k ++) {
+      endif             } endfor
+            } endfor
+        } endfor
 
        /**
         * Mostrando resultado
         */
-        for(number i = 0; i<linhaMatriz2; i++){
+        for(number i = 0; i<linhaMatriz1; i ++){
+            for(number j = 0; j<colunaMatriz2; j ++){
+               if (i == 0 and j == 0) {
+                    print("[");
+               } endif
 
-            for(number j = 0; j<colunaMatriz2; j++){
-                
-               print(resultadoSoma[i][j]);
-            }
-        }
+               if (j == 0) {
+                    print("[");
+               } endif
+               
+               print(resultadoMultiplicacao[i][j]);
 
-    } endif
+               if (j == colunaMatriz2 - 1) {
+                    print("]");
+               } endif
+
+               if (i == linhaMatriz2 - 1 and j == colunaMatriz2 - 1) {
+                    print("]");
+               } endif
+               
+            } endfor
+        } endfor
+
+    } 
     else {
         print("Não é possível multiplicar matrizes com ordens da coluna da matriz 1 e linha da matriz 2 diferentes");
     } endif
 
 
+} end
+
+start() {
+    myFunc();
 } end

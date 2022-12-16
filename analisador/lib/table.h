@@ -29,8 +29,6 @@ typedef struct table_container
     struct table_container* next;
 } t_container;
 
-t_container* tabela; // lista ligada
-
 void create_table();
 
 /* construtor de containers */
