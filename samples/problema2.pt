@@ -4,7 +4,8 @@
  * e [76, 100]. A entrada de dados deve terminar quando for lido um número negativo.
  */
 
- procedure evaluateInterval(number[] list) {
+ start() {
+    
     // limites do intervalo [0, 25]
     number total0 = 0;
      
@@ -13,37 +14,36 @@
 
     // limites do intervalo [51, 75] 
     number total2 = 0;
-
-    number total = 0;
-    number i = 0;
-    while( list[i] >= 0 ) {
-        if( i >=0 and i <= 25 ) {
-            total0 ++;
-        } endif else if( i >= 26 and i<= 50 ) {
-            total1 ++;
-        } endif else if( i >= 51 and i <= 75 ) {
-            total2 ++;
-        } endif
-        total ++;
-        i ++;
-    } endwhile
-
-    print("Dos " total " numeros recebidos,\n " total0 " estão no intervalo [0, 25],\n " total1 " estão no intervalo [26, 50], e \n " total2 " estão no intervalo [51, 75].\n ");
- } end
-
- start() {
-    print("digite números inteiros: ");
-    number[] lista;
-
-    number i = 0;
-    number d;
     
-    scan(d);
+    number total = 0;
+
+    print("digite um número inteiro maior que zero: ");
+    number d;
+    read(number d);
+
     while (d >= 0) {
-        lista[i] = d;
-        i++;
-        scan(d);
+        
+        total++;
+        if( d >= 0 and d <= 25 ) {
+            total0++;
+
+        } endif else if( d >= 26 and d <= 50 ) {
+            total1++;
+
+        } endif else if( d >= 51 and d <= 75 ) {
+            total2++;
+
+        } endif
+
+        print("digite um número inteiro maior que zero: ");
+        read(number d);
+
     } endwhile
 
-    evaluateInterval(lista);
+    print("Dos ", number total); 
+    print(" numeros recebidos,\n ", number total0);
+    print(" estão no intervalo [0, 25],\n ", number total1);
+    print(" estão no intervalo [26, 50], e \n ", number total2);
+    print(" estão no intervalo [51, 75].\n ");
+
  } end

@@ -12,16 +12,16 @@ procedure myFunc() {
     number colunaMatriz2 = 0;
 
     print("digite o numero de linhas da matriz1: ");
-    scan(linhaMatriz1);
+    read(number linhaMatriz1);
 
     print("digite o numero de colunas da matriz1: ");
-    scan(colunaMatriz1);
+    read(number colunaMatriz1);
     
     print("digite o numero de linhas da matriz2: ");
-    scan(linhaMatriz1);
+    read(number linhaMatriz1);
 
     print("digite o numero de colunas da matriz2: ");
-    scan(colunaMatriz1);
+    read(number colunaMatriz1);
     
 
     number[linhaMatriz1][colunaMatriz1] matriz1;

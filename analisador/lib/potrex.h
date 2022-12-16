@@ -27,11 +27,17 @@ typedef struct node {
     int return_check;
 
 } s_node;
+
+char* build_scanf(char* type, char* id);
+
+char* build_printf(char* str, char* type, char* id);
  
 void freeNode(s_node *);
 
 s_node * createNode(char *);
 
 char* concat(int count, ...);
+
+void remove_end_character(char* str);
 
 #endif

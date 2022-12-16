@@ -29,9 +29,9 @@ extern FILE * yyin, * yyout;
 %token WHILE BLOCK_ENDWHILE FOR BLOCK_ENDFOR DO BLOCK_ENDDO BLOCK_END
 %token IF BLOCK_ENDIF THEN ELSE
 %token START FUNCTION PROCEDURE RETURN
-%token PRINT SCAN
+%token PRINT SCAN READ
 %token DIMENSION
-%token <sValue> NUMBER STRING BOOL MAP TRUE FALSE
+%token <sValue> NUMBER STRING BOOL CONTAINER TRUE FALSE
 %token AND OR NOT
 %token OP_GEQ OP_LEQ OP_EQ OP_NEQ
 %token OP_INCREMENT OP_DECREMENT
@@ -40,9 +40,9 @@ extern FILE * yyin, * yyout;
 %start program
 
 %type <nodeValue> stm stmlist declaration start program subprograms subprogram
-%type <nodeValue> print print_strs str scan
+%type <nodeValue> print print_arg scan read
 %type <nodeValue> args argumentos argumento atom dimensions /*tipo_inicial*/ tipo id ids proc_func_call pars parameters assign init_opt op_access ops_access
-%type <nodeValue> assignment io escope while for if elseif condition block return
+%type <nodeValue> assignment container_decl container_decls io escope while for if elseif condition block return index
 %type <nodeValue> exp exp_lv2 exp_lv3 exp_lv4 exp_lv5 exp_lv6 exp_lv7 exp_lv8
 
 %% /* Inicio da segunda seção, onde colocamos as regras BNF */
@@ -105,16 +105,24 @@ subprogram  : FUNCTION ID  '(' argumentos ')' ':' tipo '{' stmlist '}' BLOCK_END
 				}
 			;
 
-tipo : NUMBER 	{ 
+tipo : NUMBER 		{ 
 				  		$$ = createNode("double");
 				  		free($1);
 					}
-	 | STRING 	{ 
-				  		$$ = createNode("char*");    // também pode ser char[]
+	 | STRING 		{ 
+				  		$$ = createNode("char*");
 				  		free($1);
 					}
-	 | BOOL 		{}    // bool não existe, então 'int' (0 ou 1)?
-	 | MAP		{}    // struct?
+	 | BOOL 		{
+						$$ = createNode("int");
+				  		free($1);
+					}    
+	 | CONTAINER ID	{
+						char *s = concat(2, "struct ", $2);
+						free($2);
+						$$ = createNode(s);
+						free(s);
+	 				}
 	 ;
 
 argumentos : 							{ $$ = createNode(""); }
@@ -131,20 +139,29 @@ args : argumento 						{ $$ = $1; }
 											}
 	 ;
 
-argumento : tipo ID						{ char* s = concat(3, $1->target_code, " ", $2);
-												freeNode($1);
-												free($2);
-												$$ = createNode(s);
-												free(s);
+argumento : tipo ID						{
+											char* s = concat(3, $1->target_code, " ", $2);
+											freeNode($1);
+											free($2);
+											$$ = createNode(s);
+											free(s);
 										}
 		  | tipo dimensions ID  		{
-												char* s = concat(4, $1->target_code, " ", $3, $2->target_code);
-												freeNode($1);
-												freeNode($2);
-												free($3);
-												$$ = createNode(s);
-												free(s);
-											}
+											char* s = concat(4, $1->target_code, " ", $3, $2->target_code);
+											freeNode($1);
+											freeNode($2);
+											free($3);
+											$$ = createNode(s);
+											free(s);
+										}
+		| tipo '*' ID					{
+											char* s = concat(3, $1->target_code, " *", $3);
+											freeNode($1);
+											free($3);
+											$$ = createNode(s);
+											free(s);
+										}
+		  ;
 		  ;
 
 pars :									{ $$ = createNode(""); }
@@ -152,13 +169,19 @@ pars :									{ $$ = createNode(""); }
 	 ;
 
 parameters : exp 						{ $$ = $1; }
-		   | exp ',' parameters  	{
-		   									char* s = concat(3, $1->target_code, ", ", $3->target_code);
-												freeNode($1);
-												freeNode($3);
-												$$ = createNode(s);
-												free(s);
-									 		}
+			| '*' exp               	{
+											char* s = concat(2, "&", $2->target_code);
+											freeNode($2);
+											$$ = createNode(s);
+											free(s);
+										}
+		   	| exp ',' parameters  		{
+											char* s = concat(3, $1->target_code, ", ", $3->target_code);
+											freeNode($1);
+											freeNode($3);
+											$$ = createNode(s);
+											free(s);
+										}
 		   ;
 
 /*tipo_inicial : tipo					{ $$ = $1; }
@@ -185,14 +208,23 @@ O array precisa ser apenas declarado numa linha, e em outra linha, iniciar os va
 tipo[] array;
 array = [args];
 */
-dimensions : DIMENSION						{ $$ = createNode("[]"); }
-           | DIMENSION dimensions		{
-														char* s = concat(2, "[]", $2->target_code);
-													   freeNode($2);
-													   $$ = createNode(s);
-													   free(s);
-													} 
+dimensions : '[' index ']'				    { $$ = createNode("[]"); }
+           | '[' index ']' dimensions		{
+											  char* s = concat(2, "[]", $2->target_code);
+											  freeNode($2);
+											  $$ = createNode(s);
+											  free(s);
+											} 
 		     ;
+
+index : 					{ $$ = createNode(""); }
+	  | exp					{
+							 char* s = concat(3, "[((int) ", $1->target_code, ")]");
+							 freeNode($1);
+							 $$ = createNode(s);
+							 free(s);
+							 }
+	  ;
 
 stmlist : stm ';'				{
 									char* s = concat(2, $1->target_code, ";\n");
@@ -246,6 +278,13 @@ atom : ID						{  // TODO ao invés de colocar string do id, fazer um lookup na 
 									   $$ = createNode(s);
 									   free(s);
 									}
+	 | ID '.' ID				{
+									char* s = concat(3, $1, ".", $3);
+									free($1);
+									free($3);
+									$$ = createNode(s);
+									free(s);
+	 							}
 	 ;
 
 ops_access : op_access					{ $$ = $1; }
@@ -259,7 +298,7 @@ ops_access : op_access					{ $$ = $1; }
 		   ;
 
 op_access : '[' exp ']'			{
-								 char* s = concat(3, "[(int) lround(", $2->target_code, ")]");
+								 char* s = concat(3, "[((int) ", $2->target_code, ")]");
 								 freeNode($2);
 								 $$ = createNode(s);
 								 free(s);
@@ -267,21 +306,29 @@ op_access : '[' exp ']'			{
 		  ;
 
 assignment : atom assign exp				{
-														char* s = concat(3, $1->target_code, $2->target_code, $3->target_code);
-					 								   freeNode($1);
-													   freeNode($2);
-													   freeNode($3);
-													   $$ = createNode(s);
-													   free(s);
-													}
-				| atom assign '[' pars ']' {
-														char* s = concat(5, $1->target_code, $2->target_code, "[", $4->target_code, "]");
-													   freeNode($1);
-													   freeNode($2);
-													   freeNode($4);
-													   $$ = createNode(s);
-													   free(s);
-													}
+												char* s = concat(3, $1->target_code, $2->target_code, $3->target_code);
+												freeNode($1);
+												freeNode($2);
+												freeNode($3);
+												$$ = createNode(s);
+												free(s);
+											}
+			| '*' atom assign exp			{
+												char* s = concat(4, "*", $2->target_code, $3->target_code, $4->target_code);
+												freeNode($2);
+												freeNode($3);
+												freeNode($4);
+												$$ = createNode(s);
+												free(s);
+											}
+			| atom assign '[' pars ']' 		{
+												char* s = concat(5, $1->target_code, $2->target_code, "[", $4->target_code, "]");
+												freeNode($1);
+												freeNode($2);
+												freeNode($4);
+												$$ = createNode(s);
+												free(s);
+											}
 				; 
 
 declaration : 								{ $$ = createNode(""); }
@@ -300,6 +347,7 @@ declaration : 								{ $$ = createNode(""); }
 												$$ = createNode(s);
 												free(s);
 											}
+			| container_decl 				{$$ = $1;}
 			;
 
 /** op 1, 2, 3 e 4 de declaração e inicialização 
@@ -356,13 +404,50 @@ assign : '='        			{ $$ = createNode("="); }
 	    | REMAINDER_ASSIGN	{ $$ = createNode($1); free($1); }
 	    ;
 
+container_decl : CONTAINER ID '{' container_decls '}' 	{
+														char* s = concat(5, "struct ", $2, "{\n", $4->target_code, "};");
+														free($2);
+														freeNode($4);
+														$$ = createNode(s);
+														free(s);
+													}
+		  ;
+
+container_decls : declaration                        	{ $$ = $1; }
+				| declaration ',' container_decls		{
+															char* s = concat(3, $1->target_code, ",\n", $3->target_code);
+															freeNode($1);
+															freeNode($3);
+															$$ = createNode(s);
+															free(s);
+														}
+				;
+
+// TODO container
+
+
+/* loop2020:
+if(a == 2 ){
+  printf("dentro\n");
+  scanf("%d", &a);
+  goto loop2020;
+}
+  printf("fora\n"); */
 while : WHILE condition block BLOCK_ENDWHILE	{
-															   char* s = concat(3, "while ", $2->target_code, $3->target_code);
-															   freeNode($2);
-															   freeNode($3);
-															   $$ = createNode(s);
-															   free(s);
-															}
+													char* loop_identifier = (char*) calloc(10000, sizeof(char));
+													sprintf(loop_identifier, "loop%d", loop_id());
+
+													remove_end_character($3->target_code);													
+														
+													char* final_str = concat(9, loop_identifier, ":", "if( ", $2->target_code, ")", 
+														$3->target_code, "goto ", loop_identifier, ";\n}");
+														
+													$$ = createNode(final_str);
+													free(final_str);
+													freeNode($2);
+													freeNode($3);
+													free(loop_identifier);
+												}
 	  ;
 
 for : FOR condition block BLOCK_ENDFOR 		{
@@ -539,8 +624,8 @@ exp_lv4 : exp_lv3 '*' exp_lv4		{
 											   $$ = createNode(s);
 											   free(s);
 											}
-		| exp_lv3 '%' exp_lv4		{
-												char* s = concat(3, $1->target_code, " % ", $3->target_code);
+		| exp_lv3 '%' exp_lv4				{
+											   char* s = concat(5, "remainder (", $1->target_code, ", ", $3->target_code, ")");
 											   freeNode($1);
 											   freeNode($3);
 											   $$ = createNode(s);
@@ -590,15 +675,15 @@ exp_lv2 : '(' exp ')'				{
 										sprintf(str, "%lf", $1);
 										$$ = createNode(str);
 										free(str);
-										}  // TODO STRING_LITERAL tambem cabe aqui? 
+									}  // TODO STRING_LITERAL tambem cabe aqui? 
 		| TRUE						{ 
-											$$ = createNode($1);             // $$ = createNode("1")? C não tem true/false
-							  				free($1);
-							  			}
+										$$ = createNode("1");             // $$ = createNode("1")? C não tem true/false
+										free($1); // TODO PRECISA DAR FREE
+									}
 	 	| FALSE						{ 
-											$$ = createNode($1);             // $$ = createNode("0")? C não tem true/false
-							  				free($1);
-							  			}
+										$$ = createNode("0");             // $$ = createNode("0")? C não tem true/false
+										free($1);
+									}
 		| atom						{ $$ = $1; } 
 		;
 
@@ -614,65 +699,68 @@ proc_func_call : ID {push(create_container($1)); } '(' pars ')'
 											} // TODO ao invés de colocar string do id, fazer um lookup na tabela de símbolos e pegar seu valor
 		  ;
 
-io : print		{ $$ = $1; } // TODO open, close, printToFile ???
-	| scan      { $$ = $1; }
+io : print		{ $$ = $1; } 
+   | scan       { $$ = $1; }
+   | read       { $$ = $1; }
    ;
 
-// C: scanf("%lf", &id);
 // Potrex: scan(id);
 // C simplificado: 
 // scanf("%d", &v); 
 scan: SCAN '(' ID ')' { 
-								char* s = concat(4, "scanf("\" %lf "\", &" $3->target_code ")"); // TODO pegar o tipo do valor no scanf
-								freeNode($3);
-								$$ = createNode(s);
-								free(s);
-							}
+						char* s = concat(3, "scanf(\"%lf\", &", $3, ")"); // TODO pegar o tipo do valor no scanf
+						free($3);
+						$$ = createNode(s);
+						free(s);
+					  }
 	;
 		
-	
+read :  READ '(' tipo ID ')'
+						{
+							char* s = build_scanf($3->target_code, $4);
+							$$ = createNode(s);
+							freeNode($3);
+							free(s);
+						}
+	;
 
-print : PRINT '(' print_strs ')'		{
-													char* s = concat(3, "printf(\"", $3->target_code, "\")");
-												   freeNode($3);
-												   $$ = createNode(s);
-												   free(s);
-												}
-      ;
 
-print_strs : str 				{ $$ = $1; }
-		   | str print_strs		{
-									char* s = concat(2, $1->target_code, $2->target_code);
-									freeNode($1);
-									freeNode($2);
+print : PRINT '(' print_arg ')'			
+								{
+									char* s = concat(3, "printf(", $3->target_code, ")");
 									$$ = createNode(s);
+									freeNode($3);
 									free(s);
 								}
-		   ;
+      ;
 
-str : STRING_LITERAL		{ // remove aspas do fim
-								   char* end = $1;
-								   while(*(end + 1) != '\0') {
-										end++;
-								  	}
-								   *end = '\0';
+print_arg :	STRING_LITERAL
+									{
+										char* s = build_printf($1, NULL, NULL);
+										$$ = createNode(s);
+										free($1);
+										free(s);
+									}
+		  | STRING_LITERAL  ',' tipo ID	
+									{
+										char* s = build_printf($1, $3->target_code, $4);
+										$$ = createNode(s);
+										freeNode($3);
+										free($1);
+										free($4);
+										free(s);	
+									}
+		  | tipo ID
+									{
+										char* s = build_printf(NULL, $1->target_code, $2);
+										$$ = createNode(s);
+										freeNode($1);
+										free($2);
+										free(s);
+									}
+		  ;		   
 
-								   // + 1 para remover aspas do começo
-								   $$ = createNode($1 + 1);
-								   free($1);
-								}
-	| proc_func_call				{ $$ = $1; }
-	| NUMBER_LITERAL		{
-								   char* str;
-								   str = malloc(sizeof(char) * 1000); 
-								   sprintf(str, "%lf", $1);
-								   $$ = createNode(str);
-								   free(str);
-								}
-	| TRUE					{ $$ = createNode($1); free($1); }
-	| FALSE					{ $$ = createNode($1); free($1); }
-	| atom					{ $$ = $1; } 
-	; // TODO como manda computar uma expressão aqui no meio e imprimir o resultado?
+
 
 return : RETURN stm		{
 							char * s = concat(2, "return ", $2->target_code);
@@ -695,7 +783,7 @@ int main (int argc, char ** argv) {
     yyin = fopen(argv[1], "r");
     yyout = fopen(argv[2], "w");
 
-	char* incl = "#include <stdio.h>\n#include <math.h>\n #include <stdlib.h>\n ";
+	char* incl = "#include <stdio.h>\n#include <math.h>\n#include <stdlib.h>\n ";
 	fprintf(yyout, "%s", incl);
 
     codigo = yyparse();

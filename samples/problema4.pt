@@ -1,16 +1,16 @@
 /** 
- * Defina o tipo rational_t para representar números racionais. O tipo rational_t
+ * Defina o tipo rationalT para representar números racionais. O tipo rationalT
  * deve ser representado como um registro (ou tipo correspondente) com campos
  * inteiros numerador e denominador. Em seguida, escreva os seguintes subprogramas:
  * 
  * A) Subprograma que, dados dois parâmetros inteiros a e b, onde b != 0, retorna
- * um valor rational_t para representar a fração a/b.
+ * um valor rationalT para representar a fração a/b.
  *
- * B) Subprograma que, dados dois parâmetros do tipo rational_t, retorna true
+ * B) Subprograma que, dados dois parâmetros do tipo rationalT, retorna true
  * se eles representam o mesmo número racional ou f alse, em caso contrário.
  *
- * C) Subprogramas que retornem um valor rational_t correspondente a soma,
- * negação, subtração, multiplicação, inverso e divisão entre valores rational_t,
+ * C) Subprogramas que retornem um valor rationalT correspondente a soma,
+ * negação, subtração, multiplicação, inverso e divisão entre valores rationalT,
  * passados como parâmetros (um subprograma por operação).
  * 
  * No programa principal, invoque cada um dos subprogramas e imprima os resultados
@@ -21,7 +21,7 @@
  * O tipo deve ser registro, ou seja, um map. Mas maps não costumam ter atributos fixos,
  * então escrevi como um struct. Algo pra alterar na escrita?
 **/
-map rational_t {
+container rationalT {
     number numerador;
     number denominador;
 }
@@ -47,11 +47,11 @@ function mmc(number a, number b): number {
 
 
 /**
- * Lançamento de exceção? Ou retorna um rational_t inválido, sla?
+ * Lançamento de exceção? Ou retorna um rationalT inválido, sla?
 **/
-function createRat(number a, number b): rational_t {
+function createRat(number a, number b): container rationalT {
     if (b != 0) {
-        rational_t rat = {a, b};
+        container rationalT rat = {a, b};
 	return rat;
     } endif else {
         error("Divisão por zero");
@@ -62,41 +62,41 @@ function createRat(number a, number b): rational_t {
 /**
  * Alguma alteração na forma de acesso aos atributos?
 **/
-function equalsRat(rational_t a, rational_t b): boolean {
+function equalsRat(container rationalT a, container rationalT b): boolean {
     return a.numerador/a.denominador == b.numerador/b.denominador;
 } end
 
 
-function addRat(rational_t a, rational_t b): rational_t {
+function addRat(container rationalT a, container rationalT b): container rationalT {
     number denominador = mmc(a.denominador, b.denominador);
 
-    rational_t rat = {mmc/a.denominador * a.numerador + mmc/b.denominador * b.numerador, mmc}; 
+    container rationalT rat = {mmc/a.denominador * a.numerador + mmc/b.denominador * b.numerador, mmc}; 
     return rat;
 } end
 
 
-function subtractRat(rational_t a, rational_t b): rational_t {
+function subtractRat(container rationalT a, container rationalT b): container rationalT {
     number denominador = mmc(a.denominador, b.denominador);
 
-    rational_t rat = {mmc/a.denominador * a.numerador - mmc/b.denominador * b.numerador, mmc}; 
+    container rationalT rat = {mmc/a.denominador * a.numerador - mmc/b.denominador * b.numerador, mmc}; 
     return rat;
 } end
 
 
-function multiplyRat(rational_t a, rational_t b): rational_t {
-    rational_t rat = {a.numerador * b.numerador, a.denominador * b.denominador};
+function multiplyRat(container rationalT a, container rationalT b): container rationalT {
+    container rationalT rat = {a.numerador * b.numerador, a.denominador * b.denominador};
     return rat;
 } end
 
 
-function divideRat(rational_t a, rational_t b): rational_t {
-    rational_t rat = {a.numerador * b.denominador, a.denominador * b.numerador};
+function divideRat(container rationalT a, container rationalT b): container rationalT {
+    container rationalT rat = {a.numerador * b.denominador, a.denominador * b.numerador};
     return rat;
 } end
 
 
-function inverseRat(rational_t a): rational_t {
-    rational_t rat = {a.denominador, a.numerador};
+function inverseRat(container rationalT a): container rationalT {
+    container rationalT rat = {a.denominador, a.numerador};
     return rat;
 } end
 
@@ -104,19 +104,73 @@ function inverseRat(rational_t a): rational_t {
 start () {
     number a = 5;
     number b = 9;
-    rational_t t1 = createRat(a, b);
-    print("Criacao do rational_t com os numeros " a " e " b ": " t1.numerador "/" t1.denominador "\n");
+    container rationalT t1 = createRat(a, b);
+    print("Criacao do rationalT com os numeros ", number a);
+    print(" e ", number b);
+    print(": ", t1.numerador);
+    print("/", t1.denominador);
+    print("\n");
 
-    rational_t t2 = createRat(b, a);
+    container rationalT t2 = createRat(b, a);
     print("Testes de igualdade:\n");
-    print("Igualdade entre " a "/" b " e " a "/" b ": " equalsRat(t1, t1) "\n");
-    print("Igualdade entre " a "/" b " e " b "/" a ": " equalsRat(t1, t2) "\n");
+    print("Igualdade entre ", number a);
+    print("/", number b);
+    print(" e ", number a);
+    print("/", number b);
+    boolean test = equalsRat(t1, t1);
+    print(": ", boolean test);
+    print("\n");
+    print("Igualdade entre ", number a);
+    print("/", number b);
+    print(" e ", number b);
+    print("/", number a);
+    test = equalsRat(t1, t2);
+    print(": ", boolean test);
+    print("\n");
 
     print("Testes de operações:\n");
-    print("Somar " a "/" b " e " b "/" a ": " addRat(t1, t2) "\n");
-    print("Subtrair " b "/" a " e " a "/" b ": " subtractRat(t1, t2) "\n");
-    print("Multiplicar " a "/" b " e " b "/" a ": " multiplyRat(t1, t2) "\n");
-    print("Dividir " a "/" b " e " b "/" a ": " divideRat(t1, t2) "\n");
-    print("Inverso de " a "/" b ": " inverseRat(t1) "\n");
+    print("Somar ", number a);
+    print("/", number b);
+    print(" e ", number b);
+    print("/", number a);
+    container rationalT result = addRat(t1, t2);
+    print(": ", number result.numerador);
+    print("/", number result.denominador);
+    print("\n");
+
+    print("Subtrair ", number b);
+    print("/", number a);
+    print(" e ", number a);
+    print("/", number b);
+    result = subtractRat(t2, t1);
+    print(": ", number result.numerador);
+    print("/", number result.denominador);
+    print("\n");
+
+    print("Multiplicar ", number a);
+    print("/", number b);
+    print(" e ", number b);
+    print("/", number a);
+    result = multiplyRat(t1, t2);
+    print(": ", number result.numerador);
+    print("/", number result.denominador);
+    print("\n");
+
+    print("Dividir ", number a);
+    print("/", number b);
+    print(" e ", number b);
+    print("/", number a);
+    result = divideRat(t1, t2);
+    print(": ", number result.numerador);
+    print("/", number result.denominador);
+    print("\n");
+
+    print("Inverso de ", number a);
+    print("/", number b);
+    
+    result = inverseRat(t1);
+    print(": ", number result.numerador);
+    print("/", number result.denominador);
+    print("\n");
     
 } end

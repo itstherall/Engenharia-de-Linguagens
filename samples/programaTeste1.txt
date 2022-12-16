@@ -6,7 +6,13 @@ start () {
     number a, b, c;
     string d, e;
 
+    boolean t = true;
+    boolean f = false;
+
     p(d, e, 3);
+
+    print("digite um numero");
+    scan(b);
 
 
 } end

@@ -74,3 +74,7 @@ void printEscope() {
 int block_id(){
     return  (int) random() % 1000;
 }
+
+int loop_id(){
+    return  (int) random() % 1000;
+}

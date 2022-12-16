@@ -11,6 +11,6 @@ start () {
 
     number exp = x^2 - y + c;
 
-    print("x^2 - y + c = " exp);
+    print("x^2 - y + c = ", number exp);
 
 } end

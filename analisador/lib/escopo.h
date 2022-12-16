@@ -44,4 +44,6 @@ void printEscope();
 
 int block_id();
 
+int loop_id();
+
 #endif

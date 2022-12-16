@@ -27,6 +27,7 @@ letterAndDigit  [a-zA-Z0-9]
 "return"              {return(RETURN);}
 "print"               {return(PRINT);}
 "scan"                {return(SCAN);}
+"read"                {return(READ);}
 "while"      			    {return(WHILE);}
 "endwhile"      			{return(BLOCK_ENDWHILE);}
 "do"      				    {return(DO);}
@@ -76,8 +77,8 @@ letterAndDigit  [a-zA-Z0-9]
                         return(STRING);}
 "boolean"					    {yylval.sValue = strdup("boolean");
                         return(BOOL);}
-"map"					        {yylval.sValue = strdup("map");
-                        return(MAP);}
+"container"					  {yylval.sValue = strdup("map");
+                        return(CONTAINER);}
  
 
 (\/\*([^*]|[\r\n]|(\*+([^*\/]|[\r\n])))*\*+\/)|(\/\/.*) {printf("Comment: %s.\n", yytext);}
