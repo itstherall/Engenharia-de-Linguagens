@@ -14,6 +14,9 @@
 
     // limites do intervalo [51, 75] 
     number total2 = 0;
+
+    // limites do intervalo [76, 100] 
+    number total3 = 0;
     
     number total = 0;
 
@@ -33,6 +36,9 @@
         } endif else if( d >= 51 and d <= 75 ) {
             total2++;
 
+        } endif else if( d >= 76 and d <= 100 ) {
+            total3++;
+
         } endif
 
         print("digite um número inteiro maior que zero: ");
@@ -44,6 +50,7 @@
     print(" numeros recebidos,\n ", number total0);
     print(" estão no intervalo [0, 25],\n ", number total1);
     print(" estão no intervalo [26, 50], e \n ", number total2);
-    print(" estão no intervalo [51, 75].\n ");
+    print(" estão no intervalo [51, 75]. e \n ", number total3);
+    print(" estão no intervalo [76, 100] \n");
 
  } end

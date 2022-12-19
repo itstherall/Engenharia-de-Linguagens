@@ -17,10 +17,6 @@
  * produzidos, indicando numerador e denominador.
 **/
 
-/**
- * O tipo deve ser registro, ou seja, um map. Mas maps não costumam ter atributos fixos,
- * então escrevi como um struct. Algo pra alterar na escrita?
-**/
 container rationalT {
     number numerador;
     number denominador;
@@ -45,10 +41,6 @@ function mmc(number a, number b): number {
     return a * (b / mdc(a, b));
 } end
 
-
-/**
- * Lançamento de exceção? Ou retorna um rationalT inválido, sla?
-**/
 function createRat(number a, number b): container rationalT {
     if (b =/= 0) {
         container rationalT rat = {a, b};
@@ -60,10 +52,6 @@ function createRat(number a, number b): container rationalT {
     } endif 
 } end
 
-
-/**
- * Alguma alteração na forma de acesso aos atributos?
-**/
 function equalsRat(container rationalT a, container rationalT b): boolean {
     return a.numerador / a.denominador == b.numerador / b.denominador;
 } end
@@ -102,10 +90,18 @@ function inverseRat(container rationalT a): container rationalT {
     return rat;
 } end
 
+function negateRat(container rationalT a): container rationalT {
+    container rationalT rat = { -1 * a.numerador, a.denominador};
+    return rat;
+} end
 
 start () {
-    number a = 5;
-    number b = 9;
+    number a = 2;
+    number b = 3;
+
+    number c = 5;
+    number d = 8;
+
     container rationalT t1 = createRat(a, b);
     print("Criacao do rationalT com os numeros ", number a);
     print(" e ", number b);
@@ -117,7 +113,7 @@ start () {
     print("/", number den);
     print("\n");
 
-    container rationalT t2 = createRat(b, a);
+    container rationalT t2 = createRat(c, d);
     print("Testes de igualdade:\n");
     print("Igualdade entre ", number a);
     print("/", number b);
@@ -129,8 +125,8 @@ start () {
     print("\n");
     print("Igualdade entre ", number a);
     print("/", number b);
-    print(" e ", number b);
-    print("/", number a);
+    print(" e ", number c);
+    print("/", number d);
     
     test = equalsRat(t1, t2);
     print(": ", boolean test);
@@ -140,8 +136,8 @@ start () {
     // Soma
     print("Somar ", number a);
     print("/", number b);
-    print(" e ", number b);
-    print("/", number a);
+    print(" e ", number c);
+    print("/", number d);
     container rationalT result = addRat(t1, t2);
     
     number r1 = result.numerador;
@@ -151,12 +147,12 @@ start () {
     print("\n");
 
     // Subtração
-    print("Subtrair ", number b);
-    print("/", number a);
-    print(" e ", number a);
+    print("Subtrair ", number a);
     print("/", number b);
+    print(" e ", number c);
+    print("/", number d);
     
-    result = subtractRat(t2, t1);
+    result = subtractRat(t1, t2);
     r1 = result.numerador;
     r2 = result.denominador;
     print(": ", number r1);
@@ -166,8 +162,8 @@ start () {
     // Multiplicação
     print("Multiplicar ", number a);
     print("/", number b);
-    print(" e ", number b);
-    print("/", number a);
+    print(" e ", number c);
+    print("/", number d);
     
     result = multiplyRat(t1, t2);
     r1 = result.numerador;
@@ -179,8 +175,8 @@ start () {
     // Divisão
     print("Dividir ", number a);
     print("/", number b);
-    print(" e ", number b);
-    print("/", number a);
+    print(" e ", number c);
+    print("/", number d);
     
     result = divideRat(t1, t2);
     r1 = result.numerador;
@@ -194,6 +190,16 @@ start () {
     print("/", number b);
 
     result = inverseRat(t1);
+    r1 = result.numerador;
+    r2 = result.denominador;
+    print(": ", number r1);
+    print("/", number r2);
+    print("\n");
+
+    print("Negação de ", number a);
+    print("/", number b);
+
+    result = negateRat(t1);
     r1 = result.numerador;
     r2 = result.denominador;
     print(": ", number r1);

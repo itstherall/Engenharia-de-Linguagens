@@ -42,7 +42,7 @@ extern FILE * yyin, * yyout;
 %type <nodeValue> stm stmlist declaration start program subprograms subprogram
 %type <nodeValue> print print_arg scan read
 %type <nodeValue> args argumentos argumento atom dimensions /*tipo_inicial*/ tipo id ids proc_func_call pars parameters assign init_opt op_access ops_access
-%type <nodeValue> assignment container_decl container_decls io escope while for if elseif condition block return index
+%type <nodeValue> assignment container_decl container_decls io escope while for if block_if elseif condition block return index
 %type <nodeValue> exp exp_lv2 exp_lv3 exp_lv4 exp_lv5 exp_lv6 exp_lv7 exp_lv8
 
 %% /* Inicio da segunda seção, onde colocamos as regras BNF */
@@ -219,7 +219,7 @@ dimensions : '[' index ']'				    { $$ = createNode("[]"); }
 
 index : 					{ $$ = createNode(""); }
 	  | exp					{
-							 char* s = concat(3, "[((int) ", $1->target_code, ")]");
+							 char* s = concat(3, "[((int) lround(", $1->target_code, ")]");
 							 freeNode($1);
 							 $$ = createNode(s);
 							 free(s);
@@ -404,11 +404,11 @@ init_opt : 			  			{ $$ = createNode(""); }
 		;
 
 assign : '='        			{ $$ = createNode("="); }
-	    | SUM_ASSIGN			{ $$ = createNode($1); free($1); }
-	    | DIFFERENCE_ASSIGN	{ $$ = createNode($1); free($1); }
-	    | PRODUCT_ASSIGN		{ $$ = createNode($1); free($1); }
-	    | QUOTIENT_ASSIGN	{ $$ = createNode($1); free($1); }
-	    | REMAINDER_ASSIGN	{ $$ = createNode($1); free($1); }
+	    | SUM_ASSIGN			{ $$ = createNode("+="); }
+	    | DIFFERENCE_ASSIGN	{ $$ = createNode("-="); }
+	    | PRODUCT_ASSIGN		{ $$ = createNode("*="); }
+	    | QUOTIENT_ASSIGN	{ $$ = createNode("/="); }
+	    | REMAINDER_ASSIGN	{ $$ = createNode("%="); }
 	    ;
 
 container_decl : CONTAINER ID '{' container_decls '}' 	{
@@ -458,7 +458,7 @@ while : WHILE condition block BLOCK_ENDWHILE	{
 	  ;
 
 for : FOR condition block BLOCK_ENDFOR 		{
-																char* s = concat(3, "for ", $2->target_code, $3->target_code);
+															   char* s = concat(3, "for ", $2->target_code, $3->target_code);
 															   freeNode($2);
 															   freeNode($3);
 															   $$ = createNode(s);
@@ -466,8 +466,8 @@ for : FOR condition block BLOCK_ENDFOR 		{
 															}
     ;
 
-if : IF condition block BLOCK_ENDIF							{
-																			char* s = concat(3, "if ", $2->target_code, $3->target_code);
+if : IF condition block_if BLOCK_ENDIF							{
+																		   char* s = concat(3, "if ", $2->target_code, " goto ", $3->target_code);
 																		   freeNode($2);
 																		   freeNode($3);
 																		   $$ = createNode(s);
@@ -483,7 +483,7 @@ if : IF condition block BLOCK_ENDIF							{
 																		}
    ;
 
-elseif : ELSE IF condition block BLOCK_ENDIF elseif	{
+elseif : ELSE IF condition block_if BLOCK_ENDIF elseif	{
 																			char* s = concat(4, "else if ", $3->target_code, $4->target_code, $6->target_code);
 																		   freeNode($3);
 																		   freeNode($4);
@@ -523,6 +523,29 @@ block : {
 												//printEscope();
 											}
 	  ;
+
+block_if: { 
+		 char* sname = (char*) calloc(10000, sizeof(char));
+		 sprintf(sname, "block@%d", block_id());
+		 push(create_container(sname)); //printEscope();
+		} 
+		 '{' stmlist '}' 			
+											{	
+												char* sname = (char*) calloc(10000, sizeof(char));
+												char* sname2 = (char*) calloc(10000, sizeof(char));
+
+		 										sprintf(sname, "label@%d", block_id());
+												sprintf(sname2, "label@%d", block_id());
+
+											    char* s = concat(7, "goto ", sname, "; {\n", sname2, ":", $3->target_code, "} ", sname, ":");
+											    freeNode($3);
+											    $$ = createNode(s);
+											    free(s);
+
+												s_container* c = pop();
+												free(c->name);
+												//printEscope();
+											}
 
 condition : '(' exp ')'				{
 												char* s = concat(3, "(", $2->target_code, ")");
@@ -632,7 +655,7 @@ exp_lv4 : exp_lv3 '*' exp_lv4		{
 											   free(s);
 											}
 		| exp_lv3 '%' exp_lv4				{
-											   char* s = concat(5, "remainder (", $1->target_code, ", ", $3->target_code, ")");
+											   char* s = concat(5, "((int) lround(", $1->target_code, ")) % ((int) lround(", $3->target_code, "))");
 											   freeNode($1);
 											   freeNode($3);
 											   $$ = createNode(s);

@@ -15,8 +15,8 @@
  **/
 
 procedure mdc(number n, number m, number* r) {
-    if (n%m == 0) { *r = n; } endif
-    else if (m%n == 0) { *r = m; } endif
+    if (n%m == 0) { *r = m; } endif
+    else if (m%n == 0) { *r = n; } endif
     else if (m > n) { mdc(n, m%n, r); } endif
     else  { mdc(m, n%m, r); } endif
 } end
@@ -25,6 +25,9 @@ start () {
     number n = 96;
     number m = 36;
     number r = 1;
+
+    read(number n);
+    read(number m);
 
     mdc(n, m, *r);
     print("MDC de ", number n);

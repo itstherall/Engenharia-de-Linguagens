@@ -35,7 +35,9 @@ procedure myFunc() {
     while(i < linhaMatriz1){
        
         while(j < colunaMatriz1){
-            print("digite um valor para o elemento " i j " da matriz 1: ");
+            print("digite um valor para o elemento ", number i);
+            print("", number j);
+            print(" da matriz 1: ");
             
             number n;
             read(number n);
@@ -52,10 +54,12 @@ procedure myFunc() {
     while(i < linhaMatriz2){
 
         while(j < colunaMatriz2){
-            print("digite um valor para o elemento " i j " da matriz 2: ");
-            
+            print("digite um valor para o elemento ", number i);
+            print("", number j);
+            print(" da matriz 2: ");
+
             number n;
-            scan(n);
+            read(number n);
             matriz2[i][j] = n;
 
             j += 1;
@@ -72,7 +76,7 @@ procedure myFunc() {
        /**
         * Realizando a soma
         */
-        number resultadoSoma[linhaMatriz1][colunaMatriz2];
+        number[linhaMatriz1][colunaMatriz2] resultadoSoma;
 
 
         i = 0;
@@ -105,7 +109,8 @@ procedure myFunc() {
                     print("[");
                } endif
                
-               print(resultadoSoma[i][j]);
+               number rrr = resultadoSoma[i][j];
+               print("", number rrr);
 
                if (j == colunaMatriz2 - 1) {
                     print("]");
@@ -118,31 +123,45 @@ procedure myFunc() {
                j += 1;
             } endwhile
 
-            1 += 1;
+            i += 1;
         } endwhile
 
     } endif else {
         print("Não é possível somar matrizes de ordens diferentes.");
     } endif
-
+    
+    
 
     if(colunaMatriz1 == linhaMatriz2){
 
-        number resultadoMultiplicacao[linhaMatriz1][colunaMatriz2];
+        number[linhaMatriz1][colunaMatriz2] resultadoMultiplicacao;
 
-        while (number i = 0; i < linhaMatriz1; i ++) {
-            while (number j = 0; j < colunaMatriz2; j ++) {
-                while (number k = 0; k < colunaMatriz1; k ++) {
-                    resultadoMultiplicacao[i][j] += (first[i][k] * second[k][j]);
+        i = 0; 
+        j = 0;
+        number k = 0;
+        while (i < linhaMatriz1) {
+            while (j < colunaMatriz2) {
+                while (k < colunaMatriz1) {
+                    resultadoMultiplicacao[i][j] += (first[i][k] * second[k][j]) ;
+
+                    k += 1;
                    } endwhile
+                
+                j += 1;
             } endwhile
+
+            i++;
         } endwhile
 
        /**
         * Mostrando resultado
         */
-        while(number i = 0; i<linhaMatriz1; i ++){
-            while(number j = 0; j<colunaMatriz2; j ++){
+
+        i = 0;
+        j = 0;
+        k = 0;
+        while(i<linhaMatriz1){
+            while( j<colunaMatriz2){
                if (i == 0 and j == 0) {
                     print("[");
                } endif
@@ -151,7 +170,8 @@ procedure myFunc() {
                     print("[");
                } endif
                
-               print(resultadoMultiplicacao[i][j]);
+               number rrr2 = resultadoMultiplicacao[i][j]; 
+               print("", number rrr2);
 
                if (j == colunaMatriz2 - 1) {
                     print("]");
@@ -160,12 +180,12 @@ procedure myFunc() {
                if (i == linhaMatriz2 - 1 and j == colunaMatriz2 - 1) {
                     print("]");
                } endif
-               
+               j++;
             } endwhile
+            i++;
         } endwhile
 
-    } 
-    else {
+    } endif else {
         print("Não é possível multiplicar matrizes com ordens da coluna da matriz 1 e linha da matriz 2 diferentes");
     } endif
 
